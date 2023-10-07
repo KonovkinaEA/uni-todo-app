@@ -1,4 +1,4 @@
-package com.example.unitodoapp.ui.edit
+package com.example.unitodoapp.ui.screens.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,12 +12,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.unitodoapp.data.navigation.List
+import com.example.unitodoapp.data.navigation.Edit
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 
 @Composable
-fun EditScreen(navController: NavHostController) {
-    val editViewModel: EditViewModel = hiltViewModel()
+fun ListScreen(navController: NavHostController) {
+    val viewModel: ListViewModel = hiltViewModel()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -25,21 +25,17 @@ fun EditScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.Center
     ) {
         Button(
-            onClick = {
-                navController.navigate(List.route) {
-                    popUpTo(List.route) { inclusive = true }
-                }
-            }
+            onClick = { navController.navigate(Edit.route) }
         ) {
-            Text(text = "To ListScreen")
+            Text(text = "To EditScreen")
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewEditScreen() {
+fun PreviewListScreen() {
     TodoAppTheme(darkTheme = false) {
-        EditScreen(rememberNavController())
+        ListScreen(rememberNavController())
     }
 }

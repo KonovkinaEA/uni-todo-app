@@ -7,8 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.unitodoapp.data.navigation.Edit
 import com.example.unitodoapp.data.navigation.List
-import com.example.unitodoapp.ui.edit.EditScreen
-import com.example.unitodoapp.ui.list.ListScreen
+import com.example.unitodoapp.ui.screens.edit.EditScreen
+import com.example.unitodoapp.ui.screens.list.ListScreen
 
 @Composable
 fun AppNavHost(
