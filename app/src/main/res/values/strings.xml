@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TodoApp</string>
+    <string name="app_name" translatable="false">TodoApp</string>
     <string name="importance_low">Low</string>
     <string name="importance_basic">Basic</string>
     <string name="importance_important">Important</string>
@@ -13,4 +13,7 @@
     <string name="deadline_calendar_cancel">Cancel</string>
     <string name="deadline_title">Deadline</string>
     <string name="delete_title">Delete</string>
+    <string name="system_theme_light">Always light</string>
+    <string name="system_theme_dark">Always dark</string>
+    <string name="system_theme_system">Match system</string>
 </resources>

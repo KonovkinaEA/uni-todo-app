@@ -24,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -38,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.unitodoapp.R
@@ -46,7 +44,6 @@ import com.example.unitodoapp.data.model.Importance
 import com.example.unitodoapp.ui.screens.edit.actions.EditUiAction
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.Red
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,7 +61,10 @@ fun ImportanceModalBottomSheet(
 
     if (showModalBottomSheet) {
         ModalBottomSheet(
-            onDismissRequest = { closeBottomSheet() },
+            onDismissRequest = {
+                uiAction(EditUiAction.UpdateImportance(newImportance))
+                closeBottomSheet()
+            },
             sheetState = bottomSheetState,
             containerColor = ExtendedTheme.colors.backPrimary,
             modifier = Modifier
@@ -83,26 +83,36 @@ fun ImportanceModalBottomSheet(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButtonForBottomSheet(
-                        closeBottomSheet = { closeBottomSheet() },
-                        updateImportance = {},
-                        scope = scope,
-                        bottomSheetState = bottomSheetState,
-                        imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(id = R.string.importance_close_button),
-                        save = false
-                    )
-                    IconButtonForBottomSheet(
-                        closeBottomSheet = { closeBottomSheet() },
-                        updateImportance = { uiAction(EditUiAction.UpdateImportance(newImportance)) },
-                        scope = scope,
-                        bottomSheetState = bottomSheetState,
-                        imageVector = Icons.Default.Done,
-                        contentDescription = stringResource(id = R.string.importance_save_button),
-                        save = true
-                    )
+                    IconButton(
+                        onClick = {
+                            scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                                if (!bottomSheetState.isVisible) closeBottomSheet()
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(id = R.string.importance_close_button),
+                            tint = ExtendedTheme.colors.labelPrimary
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
+                                if (!bottomSheetState.isVisible) {
+                                    uiAction(EditUiAction.UpdateImportance(newImportance))
+                                    closeBottomSheet()
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = stringResource(id = R.string.importance_save_button),
+                            tint = ExtendedTheme.colors.labelPrimary
+                        )
+                    }
                 }
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -134,7 +144,6 @@ fun ImportanceItem(
         selected -> ExtendedTheme.colors.labelPrimary
         else -> ExtendedTheme.colors.labelTertiary
     }
-
     val scale = remember { Animatable(initialValue = 1f) }
     val clickEnabled = remember { mutableStateOf(true) }
 
@@ -177,33 +186,4 @@ fun ImportanceItem(
         )
     }
     if (importance != Importance.IMPORTANT) Spacer(modifier = Modifier.size(10.dp))
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun IconButtonForBottomSheet(
-    closeBottomSheet: () -> Unit,
-    updateImportance: () -> Unit,
-    scope: CoroutineScope,
-    bottomSheetState: SheetState,
-    imageVector: ImageVector,
-    contentDescription: String,
-    save: Boolean
-) {
-    IconButton(
-        onClick = {
-            scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
-                if (!bottomSheetState.isVisible) {
-                    if (save) updateImportance()
-                    closeBottomSheet()
-                }
-            }
-        }
-    ) {
-        Icon(
-            imageVector = imageVector,
-            contentDescription = contentDescription,
-            tint = ExtendedTheme.colors.labelPrimary
-        )
-    }
 }

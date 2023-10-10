@@ -37,7 +37,7 @@ import com.example.unitodoapp.ui.theme.TodoAppTheme
 import com.example.unitodoapp.utils.convertToDateFormat
 
 @Composable
-fun EditDeadline(
+fun Deadline(
     deadline: Long,
     isDateVisible: Boolean,
     uiAction: (EditUiAction) -> Unit
@@ -137,11 +137,11 @@ private fun DeadlineDatePicker(
 
 @Preview
 @Composable
-fun PreviewAddTodoItemDeadline(
+fun PreviewDeadline(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        EditDeadline(
+        Deadline(
             deadline = 1696693800000L,
             isDateVisible = true,
             uiAction = {}

@@ -1,9 +1,11 @@
 package com.example.unitodoapp.ui.screens.edit
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,14 +17,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.unitodoapp.ui.components.edit.EditUiActionHandler
+import com.example.unitodoapp.ui.components.edit.EditUiEventHandler
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 import com.example.unitodoapp.data.navigation.List
-import com.example.unitodoapp.ui.components.edit.EditDeadline
-import com.example.unitodoapp.ui.components.edit.EditDelete
+import com.example.unitodoapp.ui.components.edit.Deadline
+import com.example.unitodoapp.ui.components.edit.DeleteButton
 import com.example.unitodoapp.ui.components.edit.EditDivider
-import com.example.unitodoapp.ui.components.edit.EditImportance
-import com.example.unitodoapp.ui.components.edit.EditTextField
+import com.example.unitodoapp.ui.components.edit.Importance
+import com.example.unitodoapp.ui.components.edit.TextField
 import com.example.unitodoapp.ui.components.edit.EditTopAppBar
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.ThemeModePreview
@@ -32,7 +34,7 @@ fun EditScreen(navController: NavHostController) {
     val viewModel: EditViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
-    EditUiActionHandler(
+    EditUiEventHandler(
         uiEvent = viewModel.uiEvent,
         onNavigateUp = {
             navController.navigate(List.route) { popUpTo(List.route) { inclusive = true } }
@@ -51,32 +53,33 @@ fun EditScreen(navController: NavHostController) {
         },
         containerColor = ExtendedTheme.colors.backPrimary
     ) { paddingValues ->
-        LazyColumn(
+        val scrollState = rememberScrollState()
+
+        Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(paddingValues)
+                .verticalScroll(scrollState)
         ) {
-            item {
-                EditTextField(
-                    text = uiState.text,
-                    uiAction = viewModel::onUiAction
-                )
-                EditImportance(
-                    importance = uiState.importance,
-                    uiAction = viewModel::onUiAction
-                )
-                EditDivider(padding = PaddingValues(horizontal = 16.dp))
-                EditDeadline(
-                    deadline = uiState.deadline,
-                    isDateVisible = uiState.isDeadlineSet,
-                    uiAction = viewModel::onUiAction
-                )
-                EditDivider(padding = PaddingValues(top = 16.dp, bottom = 8.dp))
-                EditDelete(
-                    enabled = uiState.isDeleteEnabled,
-                    uiAction = viewModel::onUiAction
-                )
-            }
+            TextField(
+                text = uiState.text,
+                uiAction = viewModel::onUiAction
+            )
+            Importance(
+                importance = uiState.importance,
+                uiAction = viewModel::onUiAction
+            )
+            EditDivider(padding = PaddingValues(horizontal = 16.dp))
+            Deadline(
+                deadline = uiState.deadline,
+                isDateVisible = uiState.isDeadlineSet,
+                uiAction = viewModel::onUiAction
+            )
+            EditDivider(padding = PaddingValues(top = 16.dp, bottom = 8.dp))
+            DeleteButton(
+                enabled = uiState.isDeleteEnabled,
+                uiAction = viewModel::onUiAction
+            )
         }
     }
 }

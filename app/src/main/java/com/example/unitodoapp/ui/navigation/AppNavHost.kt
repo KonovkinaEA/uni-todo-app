@@ -7,8 +7,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.unitodoapp.data.navigation.Edit
 import com.example.unitodoapp.data.navigation.List
+import com.example.unitodoapp.data.navigation.Settings
 import com.example.unitodoapp.ui.screens.edit.EditScreen
 import com.example.unitodoapp.ui.screens.list.ListScreen
+import com.example.unitodoapp.ui.screens.settings.SettingsScreen
 
 @Composable
 fun AppNavHost(
@@ -23,9 +25,11 @@ fun AppNavHost(
         composable(List.route) {
             ListScreen(navController = navController)
         }
-        
         composable(Edit.route) {
             EditScreen(navController = navController)
+        }
+        composable(Settings.route) {
+            SettingsScreen(navController = navController)
         }
     }
 }

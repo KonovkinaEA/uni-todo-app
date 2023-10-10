@@ -7,3 +7,7 @@ object List : Destination {
 object Edit : Destination {
     override val route: String = "edit"
 }
+
+object Settings : Destination {
+    override val route: String = "settings"
+}

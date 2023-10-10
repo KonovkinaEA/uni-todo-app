@@ -5,8 +5,9 @@ import com.example.unitodoapp.data.model.TodoItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
-class Repository : TodoItemsRepository {
+class Repository @Inject constructor() : TodoItemsRepository {
     private val _todoItems: MutableStateFlow<List<TodoItem>> = MutableStateFlow(listOf())
     val todoItems = _todoItems.asStateFlow()
 
@@ -36,7 +37,9 @@ class Repository : TodoItemsRepository {
     }
 
     override suspend fun removeTodoItem(id: String) {
-        TODO("Not yet implemented")
+        _todoItems.update { currentList ->
+            currentList.filter { it.id != id }
+        }
     }
 
     private fun getHardcodedTodoItems(): List<TodoItem> {

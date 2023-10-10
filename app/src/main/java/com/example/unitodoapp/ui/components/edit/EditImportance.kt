@@ -25,7 +25,7 @@ import com.example.unitodoapp.ui.theme.ThemeModePreview
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 
 @Composable
-fun EditImportance(
+fun Importance(
     importance: Importance,
     uiAction: (EditUiAction) -> Unit
 ) {
@@ -59,11 +59,11 @@ fun EditImportance(
 
 @Preview
 @Composable
-fun PreviewEditImportance(
+fun PreviewImportance(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        EditImportance(
+        Importance(
             importance = Importance.BASIC,
             uiAction = {}
         )

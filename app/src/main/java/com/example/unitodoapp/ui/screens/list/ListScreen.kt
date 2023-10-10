@@ -13,6 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.unitodoapp.data.navigation.Edit
+import com.example.unitodoapp.data.navigation.Settings
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 
 @Composable
@@ -28,6 +29,11 @@ fun ListScreen(navController: NavHostController) {
             onClick = { navController.navigate(Edit.route) }
         ) {
             Text(text = "To EditScreen")
+        }
+        Button(
+            onClick = { navController.navigate(Settings.route) }
+        ) {
+            Text(text = "To SettingsScreen")
         }
     }
 }

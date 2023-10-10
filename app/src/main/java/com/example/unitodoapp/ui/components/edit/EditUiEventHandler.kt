@@ -6,7 +6,7 @@ import com.example.unitodoapp.ui.screens.edit.actions.EditUiEvent
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun EditUiActionHandler(
+fun EditUiEventHandler(
     uiEvent: Flow<EditUiEvent>,
     onNavigateUp: () -> Unit,
     onSave: () -> Unit
@@ -15,7 +15,7 @@ fun EditUiActionHandler(
         uiEvent.collect {
             when(it) {
                 EditUiEvent.NavigateUp -> onNavigateUp()
-                EditUiEvent.SaveTodoItem -> onSave()
+                EditUiEvent.SaveTask -> onSave()
             }
         }
     }

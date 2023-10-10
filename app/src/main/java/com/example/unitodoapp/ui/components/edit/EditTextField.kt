@@ -23,7 +23,7 @@ import com.example.unitodoapp.ui.theme.ThemeModePreview
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 
 @Composable
-fun EditTextField(
+fun TextField(
     text: String,
     uiAction: (EditUiAction) -> Unit
 ) {
@@ -61,11 +61,11 @@ fun EditTextField(
 
 @Preview
 @Composable
-fun PreviewEditTextField(
+fun PreviewTextField(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        EditTextField(
+        TextField(
             text = "",
             uiAction = {}
         )

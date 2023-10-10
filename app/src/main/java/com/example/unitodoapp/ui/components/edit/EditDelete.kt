@@ -26,7 +26,7 @@ import com.example.unitodoapp.ui.theme.ThemeModePreview
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 
 @Composable
-fun EditDelete(
+fun DeleteButton(
     enabled: Boolean,
     uiAction: (EditUiAction) -> Unit
 ) {
@@ -59,11 +59,11 @@ fun EditDelete(
 
 @Preview
 @Composable
-fun PreviewAddTodoItemDelete(
+fun PreviewDeleteButton(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        EditDelete(
+        DeleteButton(
             enabled = false,
             uiAction = {}
         )
