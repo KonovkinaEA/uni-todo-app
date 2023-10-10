@@ -2,7 +2,7 @@ package com.example.unitodoapp.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.unitodoapp.datastore.DataStoreManager
+import com.example.unitodoapp.data.datastore.DataStoreManager
 import com.example.unitodoapp.ui.screens.settings.actions.SettingsUiEvent
 import com.example.unitodoapp.ui.screens.settings.model.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel

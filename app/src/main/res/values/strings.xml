@@ -16,4 +16,6 @@
     <string name="system_theme_light">Always light</string>
     <string name="system_theme_dark">Always dark</string>
     <string name="system_theme_system">Match system</string>
+    <string name="settings_close_button">Close settings window</string>
+    <string name="settings_theme_title">Theme</string>
 </resources>

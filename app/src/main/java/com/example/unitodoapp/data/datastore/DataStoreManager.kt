@@ -1,4 +1,4 @@
-package com.example.unitodoapp.datastore
+package com.example.unitodoapp.data.datastore
 
 import android.content.Context
 import androidx.datastore.dataStore

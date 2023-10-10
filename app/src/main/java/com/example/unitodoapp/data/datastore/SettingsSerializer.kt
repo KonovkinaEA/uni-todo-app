@@ -1,5 +1,6 @@
-package com.example.unitodoapp.datastore
+package com.example.unitodoapp.data.datastore
 
+import android.util.Log
 import androidx.datastore.core.Serializer
 import com.example.unitodoapp.ui.screens.settings.SettingsState
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,7 @@ object SettingsSerializer : Serializer<SettingsState> {
                 string = input.readBytes().toString()
             )
         } catch (e: SerializationException) {
-            e.printStackTrace()
+            Log.e("datastore", "An error occurred while loading data")
             SettingsState()
         }
     }
