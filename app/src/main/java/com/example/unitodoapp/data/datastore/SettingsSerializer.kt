@@ -18,11 +18,11 @@ object SettingsSerializer : Serializer<SettingsState> {
         return try {
             Json.decodeFromString(
                 deserializer = SettingsState.serializer(),
-                string = input.readBytes().toString()
+                string = input.readBytes().decodeToString()
             )
         } catch (e: SerializationException) {
             Log.e("datastore", "An error occurred while loading data")
-            SettingsState()
+            defaultValue
         }
     }
 

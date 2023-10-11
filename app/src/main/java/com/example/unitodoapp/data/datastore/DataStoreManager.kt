@@ -5,9 +5,11 @@ import androidx.datastore.dataStore
 import com.example.unitodoapp.ui.screens.settings.model.ThemeMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private val Context.protoDataStore by dataStore("settings.json", SettingsSerializer)
 
+@Singleton
 class DataStoreManager @Inject constructor(@ApplicationContext appContext: Context) {
     private val settingsDataStore = appContext.protoDataStore
 

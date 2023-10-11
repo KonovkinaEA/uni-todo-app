@@ -3,9 +3,11 @@ package com.example.unitodoapp.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.unitodoapp.data.datastore.DataStoreManager
+import com.example.unitodoapp.ui.screens.settings.actions.SettingsUiAction
 import com.example.unitodoapp.ui.screens.settings.actions.SettingsUiEvent
 import com.example.unitodoapp.ui.screens.settings.model.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +31,19 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             dataStoreManager.getSettings().collectLatest {
                 _uiState.value = it
+            }
+        }
+    }
+
+    fun onUiAction(action: SettingsUiAction) {
+        when (action) {
+            SettingsUiAction.NavigateUp -> viewModelScope.launch {
+                _uiEvent.send(SettingsUiEvent.NavigateUp)
+            }
+            is SettingsUiAction.UpdateThemeMode -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    dataStoreManager.saveThemeMode(action.themeMode)
+                }
             }
         }
     }

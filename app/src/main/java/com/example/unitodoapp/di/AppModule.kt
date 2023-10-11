@@ -1,4 +1,4 @@
-package com.example.unitodoapp.di.modules
+package com.example.unitodoapp.di
 
 import com.example.unitodoapp.data.Repository
 import com.example.unitodoapp.data.TodoItemsRepository

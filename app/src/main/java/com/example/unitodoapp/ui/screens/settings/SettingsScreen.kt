@@ -31,7 +31,7 @@ fun SettingsScreen(navController: NavHostController) {
     )
 
     Scaffold(
-        topBar = { SettingsTopAppBar(uiAction = { /*TODO*/ }) },
+        topBar = { SettingsTopAppBar(uiAction = viewModel::onUiAction) },
         containerColor = ExtendedTheme.colors.backPrimary
     ) { paddingValues ->
         val scrollState = rememberScrollState()
@@ -44,7 +44,7 @@ fun SettingsScreen(navController: NavHostController) {
         ) {
             ThemePicker(
                 themeMode = uiState.themeMode,
-                uiAction = { /*TODO*/ }
+                uiAction = viewModel::onUiAction
             )
         }
     }
