@@ -2,7 +2,7 @@ package com.example.unitodoapp.data.db
 
 import androidx.room.ColumnInfo
 import com.example.unitodoapp.data.model.TodoItem
-import com.example.unitodoapp.utils.stringToImportance
+import com.example.unitodoapp.utils.convertToImportance
 
 
 data class TodoItemInfoTuple(
@@ -18,7 +18,7 @@ data class TodoItemInfoTuple(
     fun toTodoItem(): TodoItem = TodoItem(
         id = id,
         text = text,
-        importance = stringToImportance(importance),
+        importance = importance.convertToImportance(),
         deadline = deadline,
         isDone = done,
         creationDate = createdAt,
