@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">TodoApp</string>
+    <string name="list_title">My tasks</string>
+    <string name="list_title_tasks_count">Done - %1$d</string>
     <string name="importance_low">Low</string>
     <string name="importance_basic">Basic</string>
     <string name="importance_important">Important</string>
@@ -18,4 +20,5 @@
     <string name="system_theme_system">Match system</string>
     <string name="settings_close_button">Close settings window</string>
     <string name="settings_theme_title">Theme</string>
+
 </resources>
