@@ -1,5 +1,6 @@
 package com.example.unitodoapp.ui.components.list
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -32,27 +33,27 @@ import com.example.unitodoapp.utils.convertToDateFormat
 
 
 @Composable
-fun ListToDoItem(todo: TodoItem) {
-    val checked = todo.isDone
-    val text = todo.text
-    val importance = todo.importance
-
-
+fun ListToDoItem(
+    todo: TodoItem,
+    onCheckboxClick: () -> Unit = {},
+    onItemClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
-            .padding(16.dp, 12.dp),
+            .padding(start = 4.dp, end = 16.dp)
+            .clickable { onItemClick() },
         verticalAlignment = Alignment.Top
     ) {
         Checkbox(
-            checked = checked,
-            onCheckedChange = null,
+            checked = todo.isDone,
+            onCheckedChange = { onCheckboxClick() },
             colors = CheckboxDefaults.colors(
-                uncheckedColor = if (importance == Importance.IMPORTANT) Color.Red
+                uncheckedColor = if (todo.importance == Importance.IMPORTANT) Color.Red
                 else ExtendedTheme.colors.supportSeparator,
                 checkedColor = Color.Green
             ),
-            modifier = if (importance == Importance.IMPORTANT) Modifier.drawBehind {
-                scale(0.7f) {
+            modifier = if (todo.importance == Importance.IMPORTANT) Modifier.drawBehind {
+                scale(0.4f) {
                     drawRect(
                         color = Color.Red,
                         alpha = 0.15f,
@@ -60,35 +61,40 @@ fun ListToDoItem(todo: TodoItem) {
                 }
             } else Modifier
         )
-        Column(
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 12.dp)
+                .padding(top = 12.dp, bottom = 12.dp)
         ) {
-            Text(
-                text = text,
-                color = if (checked) ExtendedTheme.colors.labelTertiary
-                else ExtendedTheme.colors.labelPrimary,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                style = TextStyle(
-                    textDecoration = if (checked) TextDecoration.LineThrough
-                    else TextDecoration.None
-                )
-            )
-            if (todo.deadline != null)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp)
+            ) {
                 Text(
-                    text = todo.deadline!!.convertToDateFormat(),
-                    color = ExtendedTheme.colors.labelTertiary,
-                    fontSize = 14.sp
+                    text = todo.text,
+                    color = if (todo.isDone) ExtendedTheme.colors.labelTertiary
+                    else ExtendedTheme.colors.labelPrimary,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    style = TextStyle(
+                        textDecoration = if (todo.isDone) TextDecoration.LineThrough
+                        else TextDecoration.None
+                    )
                 )
-        }
+                if (todo.deadline != null)
+                    Text(
+                        text = todo.deadline!!.convertToDateFormat(),
+                        color = ExtendedTheme.colors.labelTertiary,
+                        fontSize = 14.sp
+                    )
+            }
 
-        Icon(
-            Icons.Outlined.Info,
-            contentDescription = "",
-            tint = ExtendedTheme.colors.supportSeparator
-        )
+            Icon(
+                Icons.Outlined.Info,
+                contentDescription = "",
+                tint = ExtendedTheme.colors.supportSeparator
+            )
+        }
     }
 }
 
