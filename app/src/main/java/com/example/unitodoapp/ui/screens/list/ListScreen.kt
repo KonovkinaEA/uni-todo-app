@@ -14,6 +14,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -38,6 +39,7 @@ fun ListScreen(navController: NavHostController) {
     val viewModel: ListViewModel = hiltViewModel()
     val scrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val list = viewModel.todoItems.collectAsState().value
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect {
@@ -81,13 +83,9 @@ fun ListScreen(navController: NavHostController) {
                 .padding(paddingValues)
         ) {
             ListToDoes(
-                //toDoes = TODO viewModel.getTodoItems(),
-                onCheckboxClick = { todo ->
-                    viewModel.onUiAction(ListUiAction.UpdateTodoItem(todo))
-                },
-                onItemClick = { todo ->
-                    viewModel.onUiAction(ListUiAction.EditTodoItem(todo))
-                }
+                toDoes = list,
+                onCheckboxClick = { viewModel.onUiAction(ListUiAction.UpdateTodoItem(it)) },
+                onItemClick = { viewModel.onUiAction(ListUiAction.EditTodoItem(it)) }
             )
         }
     }

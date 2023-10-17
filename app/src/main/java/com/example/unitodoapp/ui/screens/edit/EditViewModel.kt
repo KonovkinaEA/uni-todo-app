@@ -3,11 +3,14 @@ package com.example.unitodoapp.ui.screens.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.unitodoapp.data.Repository
 import com.example.unitodoapp.data.model.Importance
+import com.example.unitodoapp.data.model.TodoItem
 import com.example.unitodoapp.data.navigation.Edit
 import com.example.unitodoapp.ui.screens.edit.actions.EditUiAction
 import com.example.unitodoapp.ui.screens.edit.actions.EditUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,8 +21,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditViewModel @Inject constructor(
+    private val repository: Repository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    private var todoItem = TodoItem()
+    private var isNewItem: Boolean = true
+
     private val _uiEvent = Channel<EditUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -29,6 +36,18 @@ class EditViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val id = savedStateHandle.get<String>(Edit.id) ?: ""
+            repository.getItem(id)?.let { item ->
+                todoItem = item
+                isNewItem = false
+
+                _uiState.update { uiState.value.copy(
+                    text = item.text,
+                    importance = item.importance,
+                    deadline = item.deadline ?: uiState.value.deadline,
+                    isDeadlineSet = item.deadline != null,
+                    isNewItem = false
+                ) }
+            }
         }
     }
 
@@ -54,9 +73,21 @@ class EditViewModel @Inject constructor(
         }
     }
 
-    private fun saveTodoItem() { /*TODO*/ }
+    private fun saveTodoItem() {
+        if (uiState.value.text.isBlank()) return
 
-    private fun removeTodoItem() { /*TODO*/ }
+        viewModelScope.launch(Dispatchers.IO) {
+            if (isNewItem) repository.addItem(todoItem) else repository.updateItem(todoItem)
+            _uiEvent.send(EditUiEvent.SaveTask)
+        }
+    }
+
+    private fun removeTodoItem() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (!isNewItem) repository.removeItem(todoItem.id)
+            _uiEvent.send(EditUiEvent.NavigateUp)
+        }
+    }
 }
 
 data class EditUiState(

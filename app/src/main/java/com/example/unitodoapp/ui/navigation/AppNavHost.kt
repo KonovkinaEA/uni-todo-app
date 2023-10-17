@@ -25,10 +25,14 @@ fun AppNavHost(
         composable(List.route) {
             ListScreen(navController = navController)
         }
+        composable(Edit.route) {
+            EditScreen(
+                navController = navController
+            )
+        }
         composable(Edit.routeWithArgs, arguments = Edit.arguments) {
             EditScreen(
-                navController = navController,
-                id = it.arguments?.getString(Edit.id) ?: ""
+                navController = navController
             )
         }
         composable(Settings.route) {

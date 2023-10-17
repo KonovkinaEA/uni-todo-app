@@ -16,13 +16,12 @@ import com.example.unitodoapp.data.model.TodoItem
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.ThemeModePreview
 import com.example.unitodoapp.ui.theme.TodoAppTheme
-import com.example.unitodoapp.utils.toDoList
 
 @Composable
 fun ListToDoes(
-    toDoes: List<TodoItem> = toDoList,
-    onCheckboxClick: (TodoItem) -> Unit = {},
-    onItemClick: (TodoItem) -> Unit = {},
+    toDoes: List<TodoItem>,
+    onCheckboxClick: (TodoItem) -> Unit,
+    onItemClick: (TodoItem) -> Unit,
 ) {
     Surface(
         color = ExtendedTheme.colors.backSecondary,
@@ -51,10 +50,12 @@ fun PreviewToDoItemList(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        Surface(
-            color = ExtendedTheme.colors.backPrimary
-        ) {
-            ListToDoes()
+        Surface(color = ExtendedTheme.colors.backPrimary) {
+            ListToDoes(
+                toDoes = listOf(),
+                onCheckboxClick = {},
+                onItemClick = {}
+            )
         }
     }
 }

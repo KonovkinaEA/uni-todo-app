@@ -12,13 +12,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.unitodoapp.ui.theme.TodoAppTheme
 import com.example.unitodoapp.data.navigation.List
 import com.example.unitodoapp.ui.components.edit.Deadline
 import com.example.unitodoapp.ui.components.edit.DeleteButton
@@ -28,12 +24,10 @@ import com.example.unitodoapp.ui.components.edit.TextField
 import com.example.unitodoapp.ui.components.edit.EditTopAppBar
 import com.example.unitodoapp.ui.screens.edit.actions.EditUiEvent
 import com.example.unitodoapp.ui.theme.ExtendedTheme
-import com.example.unitodoapp.ui.theme.ThemeModePreview
 
 @Composable
 fun EditScreen(
-    navController: NavHostController,
-    id: String
+    navController: NavHostController
 ) {
     val viewModel: EditViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
@@ -88,18 +82,5 @@ fun EditScreen(
                 uiAction = viewModel::onUiAction
             )
         }
-    }
-}
-
-@Preview
-@Composable
-fun PreviewEditScreen(
-    @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
-) {
-    TodoAppTheme(darkTheme = darkTheme) {
-        EditScreen(
-            navController = rememberNavController(),
-            id = ""
-        )
     }
 }

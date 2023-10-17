@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class TodoItemsRepository @Inject constructor() : Repository {
     private val _todoItems: MutableStateFlow<List<TodoItem>> = MutableStateFlow(listOf())
-    val todoItems = _todoItems.asStateFlow()
+    override val todoItems = _todoItems.asStateFlow()
 
     init {
         _todoItems.update { getHardcodedTodoItems() }
