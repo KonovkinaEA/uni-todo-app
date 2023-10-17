@@ -76,6 +76,11 @@ class EditViewModel @Inject constructor(
     private fun saveTodoItem() {
         if (uiState.value.text.isBlank()) return
 
+        todoItem.text = uiState.value.text
+        todoItem.importance = uiState.value.importance
+        todoItem.deadline = if (uiState.value.isDeadlineSet) uiState.value.deadline else null
+        if (isNewItem) todoItem.modificationDate = System.currentTimeMillis()
+
         viewModelScope.launch(Dispatchers.IO) {
             if (isNewItem) repository.addItem(todoItem) else repository.updateItem(todoItem)
             _uiEvent.send(EditUiEvent.SaveTask)
