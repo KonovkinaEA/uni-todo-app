@@ -35,8 +35,8 @@ import com.example.unitodoapp.utils.convertToDateFormat
 @Composable
 fun ListToDoItem(
     todo: TodoItem,
-    onCheckboxClick: () -> Unit = {},
-    onItemClick: () -> Unit = {}
+    onCheckboxClick: () -> Unit,
+    onItemClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -62,8 +62,7 @@ fun ListToDoItem(
             } else Modifier
         )
         Row(
-            modifier = Modifier
-                .padding(top = 12.dp, bottom = 12.dp)
+            modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -90,15 +89,15 @@ fun ListToDoItem(
             }
 
             Icon(
-                Icons.Outlined.Info,
-                contentDescription = "",
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
                 tint = ExtendedTheme.colors.supportSeparator
             )
         }
     }
 }
 
-@Preview()
+@Preview
 @Composable
 fun PreviewBaseToDoItem(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
@@ -108,22 +107,24 @@ fun PreviewBaseToDoItem(
             color = ExtendedTheme.colors.backPrimary
         ) {
             ListToDoItem(
-                TodoItem(
+                todo = TodoItem(
                     isDone = false,
                     text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно, " +
                             "но точно нужно чтобы показать как обрезается " +
                             "эта часть текста не видна",
                     importance = Importance.BASIC
-                )
+                ),
+                onCheckboxClick = {},
+                onItemClick = {}
             )
         }
 
     }
 }
 
-@Preview()
+@Preview
 @Composable
-fun PreviewHighPriotityToDoItem(
+fun PreviewHighPriorityToDoItem(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
@@ -131,18 +132,20 @@ fun PreviewHighPriotityToDoItem(
             color = ExtendedTheme.colors.backPrimary
         ) {
             ListToDoItem(
-                TodoItem(
+                todo = TodoItem(
                     isDone = false,
                     text = "Купить что-то",
                     importance = Importance.IMPORTANT
-                )
+                ),
+                onCheckboxClick = {},
+                onItemClick = {}
             )
         }
 
     }
 }
 
-@Preview()
+@Preview
 @Composable
 fun PreviewDoneToDoItem(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
@@ -152,18 +155,20 @@ fun PreviewDoneToDoItem(
             color = ExtendedTheme.colors.backPrimary
         ) {
             ListToDoItem(
-                TodoItem(
+                todo = TodoItem(
                     isDone = true,
                     text = "Купить что-то",
                     importance = Importance.BASIC
-                )
+                ),
+                onCheckboxClick = {},
+                onItemClick = {}
             )
         }
 
     }
 }
 
-@Preview()
+@Preview
 @Composable
 fun PreviewDeadlineToDoItem(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
@@ -173,15 +178,16 @@ fun PreviewDeadlineToDoItem(
             color = ExtendedTheme.colors.backPrimary
         ) {
             ListToDoItem(
-                TodoItem(
+                todo = TodoItem(
                     isDone = false,
                     text = "Купить что-то",
                     importance = Importance.BASIC,
                     deadline = 1654665100000L
-                )
+                ),
+                onCheckboxClick = {},
+                onItemClick = {}
             )
         }
-
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.unitodoapp.ui.components.list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,7 +32,10 @@ fun ListToDoes(
             .shadow(4.dp, shape = RoundedCornerShape(8.dp))
             .fillMaxSize()
     ) {
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier
+                .background(ExtendedTheme.colors.backSecondary)
+        ) {
             items(toDoes) { todo ->
                 ListToDoItem(
                     todo = todo,
