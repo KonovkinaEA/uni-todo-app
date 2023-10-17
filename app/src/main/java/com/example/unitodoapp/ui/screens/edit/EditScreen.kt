@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -17,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.unitodoapp.ui.components.edit.EditUiEventHandler
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 import com.example.unitodoapp.data.navigation.List
 import com.example.unitodoapp.ui.components.edit.Deadline
@@ -26,23 +26,30 @@ import com.example.unitodoapp.ui.components.edit.EditDivider
 import com.example.unitodoapp.ui.components.edit.Importance
 import com.example.unitodoapp.ui.components.edit.TextField
 import com.example.unitodoapp.ui.components.edit.EditTopAppBar
+import com.example.unitodoapp.ui.screens.edit.actions.EditUiEvent
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.ThemeModePreview
 
 @Composable
-fun EditScreen(navController: NavHostController) {
+fun EditScreen(
+    navController: NavHostController,
+    id: String
+) {
     val viewModel: EditViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
-    EditUiEventHandler(
-        uiEvent = viewModel.uiEvent,
-        onNavigateUp = {
-            navController.navigate(List.route) { popUpTo(List.route) { inclusive = true } }
-        },
-        onSave = {
-            navController.navigate(List.route) { popUpTo(List.route) { inclusive = true } }
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect {
+            when(it) {
+                EditUiEvent.NavigateUp -> {
+                    navController.navigate(List.route) { popUpTo(List.route) { inclusive = true } }
+                }
+                EditUiEvent.SaveTask -> {
+                    navController.navigate(List.route) { popUpTo(List.route) { inclusive = true } }
+                }
+            }
         }
-    )
+    }
 
     Scaffold(
         topBar = {
@@ -90,6 +97,9 @@ fun PreviewEditScreen(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        EditScreen(rememberNavController())
+        EditScreen(
+            navController = rememberNavController(),
+            id = ""
+        )
     }
 }

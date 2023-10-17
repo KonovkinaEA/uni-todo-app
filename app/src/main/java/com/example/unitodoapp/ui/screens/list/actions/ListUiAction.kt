@@ -1,4 +1,4 @@
-package com.example.unitodoapp.ui.screens.edit.actions
+package com.example.unitodoapp.ui.screens.list.actions
 
 import com.example.unitodoapp.data.model.TodoItem
 

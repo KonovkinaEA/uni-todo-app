@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -24,8 +25,8 @@ import com.example.unitodoapp.data.navigation.Edit
 import com.example.unitodoapp.data.navigation.Settings
 import com.example.unitodoapp.ui.components.list.ListToDoes
 import com.example.unitodoapp.ui.components.list.ListTopAppBar
-import com.example.unitodoapp.ui.components.list.ListUiEventHandler
-import com.example.unitodoapp.ui.screens.edit.actions.ListUiAction
+import com.example.unitodoapp.ui.screens.list.actions.ListUiAction
+import com.example.unitodoapp.ui.screens.list.actions.ListUiEvent
 import com.example.unitodoapp.ui.theme.Blue
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.TodoAppTheme
@@ -35,22 +36,18 @@ import com.example.unitodoapp.ui.theme.White
 @Composable
 fun ListScreen(navController: NavHostController) {
     val viewModel: ListViewModel = hiltViewModel()
-
     val scrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-
-    ListUiEventHandler(
-        uiEvent = viewModel.uiEvent,
-        onNavigateToEditScreen = {
-            navController.navigate(Edit.route)
-        },
-        onNavigateToSettingsScreen = {
-            navController.navigate(Settings.route)
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect {
+            when (it) {
+                ListUiEvent.NavigateToNewTodoItem -> navController.navigate(Edit.route)
+                ListUiEvent.NavigateToSettings -> navController.navigate(Settings.route)
+                is ListUiEvent.NavigateToEditTodoItem -> navController.navigate(Edit.navToOrderWithArgs(it.id))
+            }
         }
-    )
-
-
+    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

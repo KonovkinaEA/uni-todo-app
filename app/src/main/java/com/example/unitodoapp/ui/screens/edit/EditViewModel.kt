@@ -1,8 +1,10 @@
 package com.example.unitodoapp.ui.screens.edit
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.unitodoapp.data.model.Importance
+import com.example.unitodoapp.data.navigation.Edit
 import com.example.unitodoapp.ui.screens.edit.actions.EditUiAction
 import com.example.unitodoapp.ui.screens.edit.actions.EditUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,16 +14,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-class EditViewModel @Inject constructor() : ViewModel() {
+class EditViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private val _uiEvent = Channel<EditUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val _uiState = MutableStateFlow(EditUiState())
     val uiState = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val id = savedStateHandle.get<String>(Edit.id) ?: ""
+        }
+    }
 
     fun onUiAction(action: EditUiAction) {
         when(action) {
