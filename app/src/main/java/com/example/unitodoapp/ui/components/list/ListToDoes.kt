@@ -1,7 +1,6 @@
 package com.example.unitodoapp.ui.components.list
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,25 +23,22 @@ fun ListToDoes(
     onCheckboxClick: (TodoItem) -> Unit,
     onItemClick: (TodoItem) -> Unit,
 ) {
-    Surface(
-        color = ExtendedTheme.colors.backSecondary,
-        shape = RoundedCornerShape(8.dp),
+
+    LazyColumn(
         modifier = Modifier
             .padding(horizontal = 8.dp)
-            .shadow(4.dp, shape = RoundedCornerShape(8.dp))
-            .fillMaxSize()
+            .shadow(
+                elevation = 2.dp,
+                shape = RoundedCornerShape(12.dp),
+            )
+            .background(ExtendedTheme.colors.backSecondary)
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .background(ExtendedTheme.colors.backSecondary)
-        ) {
-            items(toDoes) { todo ->
-                ListToDoItem(
-                    todo = todo,
-                    onCheckboxClick = { onCheckboxClick(todo) },
-                    onItemClick = { onItemClick(todo) }
-                )
-            }
+        items(toDoes) { todo ->
+            ListToDoItem(
+                todo = todo,
+                onCheckboxClick = { onCheckboxClick(todo) },
+                onItemClick = { onItemClick(todo) }
+            )
         }
     }
 }
@@ -54,7 +50,9 @@ fun PreviewToDoItemList(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        Surface(color = ExtendedTheme.colors.backPrimary) {
+        Surface(
+            color = ExtendedTheme.colors.backPrimary,
+        ) {
             ListToDoes(
                 toDoes = listOf(),
                 onCheckboxClick = {},

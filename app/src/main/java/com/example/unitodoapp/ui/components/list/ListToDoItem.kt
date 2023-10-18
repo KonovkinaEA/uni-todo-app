@@ -40,7 +40,6 @@ fun ListToDoItem(
 ) {
     Row(
         modifier = Modifier
-            .padding(start = 4.dp, end = 16.dp)
             .clickable { onItemClick() },
         verticalAlignment = Alignment.Top
     ) {
@@ -52,14 +51,18 @@ fun ListToDoItem(
                 else ExtendedTheme.colors.supportSeparator,
                 checkedColor = Color.Green
             ),
-            modifier = if (todo.importance == Importance.IMPORTANT) Modifier.drawBehind {
-                scale(0.4f) {
-                    drawRect(
-                        color = Color.Red,
-                        alpha = 0.15f,
-                    )
-                }
-            } else Modifier
+            modifier = if (todo.importance == Importance.IMPORTANT)
+                Modifier
+                    .padding(start = 4.dp)
+                    .drawBehind {
+                        scale(0.4f) {
+                            drawRect(
+                                color = Color.Red,
+                                alpha = 0.15f,
+                            )
+                        }
+
+                    } else Modifier.padding(start = 4.dp)
         )
         Row(
             modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
@@ -91,7 +94,8 @@ fun ListToDoItem(
             Icon(
                 imageVector = Icons.Outlined.Info,
                 contentDescription = null,
-                tint = ExtendedTheme.colors.supportSeparator
+                tint = ExtendedTheme.colors.supportSeparator,
+                modifier = Modifier.padding(end = 12.dp)
             )
         }
     }
