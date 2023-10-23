@@ -38,7 +38,7 @@ import com.example.unitodoapp.ui.theme.White
 fun ListScreen(navController: NavHostController) {
     val viewModel: ListViewModel = hiltViewModel()
     val scrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+            TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val list = viewModel.todoItems.collectAsState().value
 
     LaunchedEffect(Unit) {

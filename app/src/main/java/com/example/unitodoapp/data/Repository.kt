@@ -9,4 +9,5 @@ interface Repository {
     suspend fun addItem(todoItem: TodoItem)
     suspend fun updateItem(todoItem: TodoItem)
     suspend fun removeItem(id: String)
+    suspend fun loadDataFromDB()
 }
