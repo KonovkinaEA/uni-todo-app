@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.unitodoapp.data.datastore.DataStoreManager
+import com.example.unitodoapp.data.workmanager.CustomWorkManager
 import com.example.unitodoapp.ui.navigation.AppNavHost
 import com.example.unitodoapp.ui.screens.settings.SettingsState
 import com.example.unitodoapp.ui.screens.settings.model.ThemeMode
@@ -20,11 +21,16 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     @Inject
     lateinit var dataStoreManager: DataStoreManager
 
+    @Inject
+    lateinit var workManager: CustomWorkManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        workManager.setWorkers()
 
         setContent {
             val navController = rememberNavController()
