@@ -175,7 +175,7 @@ fun PreviewListTopAppBar() {
                     .padding(it)
             ) {
                 items(toDoList) { item ->
-                    ListToDoItem(
+                    ListToDoItemCard(
                         todo = item,
                         onCheckboxClick = {},
                         onItemClick = {}

@@ -1,5 +1,6 @@
 package com.example.unitodoapp.ui.components.list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +10,6 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,14 +33,15 @@ import com.example.unitodoapp.utils.convertToDateFormat
 
 
 @Composable
-fun ListToDoItem(
+fun ListToDoItemCard(
     todo: TodoItem,
     onCheckboxClick: () -> Unit,
     onItemClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
-            .clickable { onItemClick() },
+            .clickable { onItemClick() }
+            .background(ExtendedTheme.colors.backPrimary),
         verticalAlignment = Alignment.Top
     ) {
         Checkbox(
@@ -93,7 +94,7 @@ fun ListToDoItem(
 
             Icon(
                 imageVector = Icons.Outlined.Info,
-                contentDescription = null,
+                contentDescription = "Todo info",
                 tint = ExtendedTheme.colors.supportSeparator,
                 modifier = Modifier.padding(end = 12.dp)
             )
@@ -103,95 +104,84 @@ fun ListToDoItem(
 
 @Preview
 @Composable
-fun PreviewBaseToDoItem(
+fun PreviewBaseToDoItemCard(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        Surface(
-            color = ExtendedTheme.colors.backPrimary
-        ) {
-            ListToDoItem(
-                todo = TodoItem(
-                    isDone = false,
-                    text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно, " +
-                            "но точно нужно чтобы показать как обрезается " +
-                            "эта часть текста не видна",
-                    importance = Importance.BASIC
-                ),
-                onCheckboxClick = {},
-                onItemClick = {}
-            )
-        }
+        ListToDoItemCard(
+            todo = TodoItem(
+                isDone = false,
+                text = "Купить что-то, где-то, зачем-то, но зачем не очень понятно, " +
+                        "но точно нужно чтобы показать как обрезается " +
+                        "эта часть текста не видна",
+                importance = Importance.BASIC
+            ),
+            onCheckboxClick = {},
+            onItemClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun PreviewHighPriorityToDoItemCard(
+    @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
+) {
+    TodoAppTheme(darkTheme = darkTheme) {
+
+        ListToDoItemCard(
+            todo = TodoItem(
+                isDone = false,
+                text = "Купить что-то",
+                importance = Importance.IMPORTANT
+            ),
+            onCheckboxClick = {},
+            onItemClick = {}
+        )
+
 
     }
 }
 
 @Preview
 @Composable
-fun PreviewHighPriorityToDoItem(
+fun PreviewDoneToDoItemCard(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        Surface(
-            color = ExtendedTheme.colors.backPrimary
-        ) {
-            ListToDoItem(
-                todo = TodoItem(
-                    isDone = false,
-                    text = "Купить что-то",
-                    importance = Importance.IMPORTANT
-                ),
-                onCheckboxClick = {},
-                onItemClick = {}
-            )
-        }
+
+        ListToDoItemCard(
+            todo = TodoItem(
+                isDone = true,
+                text = "Купить что-то",
+                importance = Importance.BASIC
+            ),
+            onCheckboxClick = {},
+            onItemClick = {}
+        )
+
 
     }
 }
 
 @Preview
 @Composable
-fun PreviewDoneToDoItem(
+fun PreviewDeadlineToDoItemCard(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        Surface(
-            color = ExtendedTheme.colors.backPrimary
-        ) {
-            ListToDoItem(
-                todo = TodoItem(
-                    isDone = true,
-                    text = "Купить что-то",
-                    importance = Importance.BASIC
-                ),
-                onCheckboxClick = {},
-                onItemClick = {}
-            )
-        }
 
-    }
-}
+        ListToDoItemCard(
+            todo = TodoItem(
+                isDone = false,
+                text = "Купить что-то",
+                importance = Importance.BASIC,
+                deadline = 1654665100000L
+            ),
+            onCheckboxClick = {},
+            onItemClick = {}
+        )
 
-@Preview
-@Composable
-fun PreviewDeadlineToDoItem(
-    @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
-) {
-    TodoAppTheme(darkTheme = darkTheme) {
-        Surface(
-            color = ExtendedTheme.colors.backPrimary
-        ) {
-            ListToDoItem(
-                todo = TodoItem(
-                    isDone = false,
-                    text = "Купить что-то",
-                    importance = Importance.BASIC,
-                    deadline = 1654665100000L
-                ),
-                onCheckboxClick = {},
-                onItemClick = {}
-            )
-        }
     }
 }
 

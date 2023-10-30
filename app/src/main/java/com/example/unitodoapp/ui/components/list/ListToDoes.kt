@@ -1,10 +1,13 @@
 package com.example.unitodoapp.ui.components.list
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DismissDirection.*
+import androidx.compose.material3.DismissValue.*
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,14 +19,17 @@ import com.example.unitodoapp.data.model.TodoItem
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.ThemeModePreview
 import com.example.unitodoapp.ui.theme.TodoAppTheme
+import com.example.unitodoapp.utils.toDoList
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListToDoes(
     toDoes: List<TodoItem>,
     onCheckboxClick: (TodoItem) -> Unit,
     onItemClick: (TodoItem) -> Unit,
+    onDeleteSwipe: (TodoItem) -> Unit,
+    onUpdateSwipe: (TodoItem) -> Unit,
 ) {
-
     LazyColumn(
         modifier = Modifier
             .padding(horizontal = 8.dp)
@@ -33,14 +39,19 @@ fun ListToDoes(
             )
             .background(ExtendedTheme.colors.backSecondary)
     ) {
-        items(toDoes) { todo ->
-            ListToDoItem(
+        items(toDoes, key = { it.id }) { todo ->
+            ListTodoItem(
                 todo = todo,
                 onCheckboxClick = { onCheckboxClick(todo) },
-                onItemClick = { onItemClick(todo) }
+                onItemClick = { onItemClick(todo) },
+                onDeleteSwipe = onDeleteSwipe,
+                onUpdateSwipe = onUpdateSwipe,
+                Modifier.animateItemPlacement()
             )
         }
     }
+
+
 }
 
 
@@ -54,9 +65,11 @@ fun PreviewToDoItemList(
             color = ExtendedTheme.colors.backPrimary,
         ) {
             ListToDoes(
-                toDoes = listOf(),
+                toDoes = toDoList,
                 onCheckboxClick = {},
-                onItemClick = {}
+                onItemClick = {},
+                onDeleteSwipe = {},
+                onUpdateSwipe = {}
             )
         }
     }
