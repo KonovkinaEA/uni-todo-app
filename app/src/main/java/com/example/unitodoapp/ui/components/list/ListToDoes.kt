@@ -25,10 +25,9 @@ import com.example.unitodoapp.utils.toDoList
 @Composable
 fun ListToDoes(
     toDoes: List<TodoItem>,
-    onCheckboxClick: (TodoItem) -> Unit,
     onItemClick: (TodoItem) -> Unit,
-    onDeleteSwipe: (TodoItem) -> Unit,
-    onUpdateSwipe: (TodoItem) -> Unit,
+    onDelete: (TodoItem) -> Unit,
+    onUpdate: (TodoItem) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -42,10 +41,10 @@ fun ListToDoes(
         items(toDoes, key = { it.id }) { todo ->
             ListTodoItem(
                 todo = todo,
-                onCheckboxClick = { onCheckboxClick(todo) },
+                onCheckboxClick = { onUpdate(todo) },
                 onItemClick = { onItemClick(todo) },
-                onDeleteSwipe = onDeleteSwipe,
-                onUpdateSwipe = onUpdateSwipe,
+                onDeleteSwipe = onDelete,
+                onUpdateSwipe = onUpdate,
                 Modifier.animateItemPlacement()
             )
         }
@@ -66,10 +65,9 @@ fun PreviewToDoItemList(
         ) {
             ListToDoes(
                 toDoes = toDoList,
-                onCheckboxClick = {},
                 onItemClick = {},
-                onDeleteSwipe = {},
-                onUpdateSwipe = {}
+                onDelete = {},
+                onUpdate = {}
             )
         }
     }

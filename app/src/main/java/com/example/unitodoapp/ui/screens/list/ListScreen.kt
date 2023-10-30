@@ -38,7 +38,7 @@ import com.example.unitodoapp.ui.theme.White
 fun ListScreen(navController: NavHostController) {
     val viewModel: ListViewModel = hiltViewModel()
     val scrollBehavior =
-            TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+        TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val list = viewModel.todoItems.collectAsState().value
 
     LaunchedEffect(Unit) {
@@ -46,7 +46,11 @@ fun ListScreen(navController: NavHostController) {
             when (it) {
                 ListUiEvent.NavigateToNewTodoItem -> navController.navigate(Edit.route)
                 ListUiEvent.NavigateToSettings -> navController.navigate(Settings.route)
-                is ListUiEvent.NavigateToEditTodoItem -> navController.navigate(Edit.navToOrderWithArgs(it.id))
+                is ListUiEvent.NavigateToEditTodoItem -> navController.navigate(
+                    Edit.navToOrderWithArgs(
+                        it.id
+                    )
+                )
             }
         }
     }
@@ -84,8 +88,15 @@ fun ListScreen(navController: NavHostController) {
         ) {
             ListToDoes(
                 toDoes = list,
-                onCheckboxClick = { viewModel.onUiAction(ListUiAction.UpdateTodoItem(it)) },
-                onItemClick = { viewModel.onUiAction(ListUiAction.EditTodoItem(it)) }
+                onItemClick = { todoItem -> viewModel.onUiAction(ListUiAction.EditTodoItem(todoItem)) },
+                onDelete = { todoItem -> viewModel.onUiAction(ListUiAction.RemoveTodoItem(todoItem)) },
+                onUpdate = { todoItem -> viewModel.onUiAction(ListUiAction.UpdateTodoItem(
+                            todoItem.copy(
+                                isDone = !todoItem.isDone
+                            )
+                        )
+                    )
+                }
             )
         }
     }
