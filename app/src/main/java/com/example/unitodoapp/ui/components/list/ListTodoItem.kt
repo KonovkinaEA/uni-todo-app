@@ -57,7 +57,7 @@ fun ListTodoItem(
         state = dismissState,
         modifier = modifier,
         background = {
-            DismissBackground(dismissState = dismissState)
+            DismissBackground(dismissState = dismissState, isTaskDone = todo.isDone)
         },
         dismissContent = {
             ListToDoItemCard(

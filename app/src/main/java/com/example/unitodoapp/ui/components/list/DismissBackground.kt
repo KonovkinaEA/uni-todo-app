@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.DismissDirection
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.unitodoapp.ui.theme.GrayLight
 import com.example.unitodoapp.ui.theme.Green
 import com.example.unitodoapp.ui.theme.Red
 import com.example.unitodoapp.ui.theme.White
@@ -24,12 +26,13 @@ import com.example.unitodoapp.ui.theme.White
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DismissBackground(
-    dismissState: DismissState
+    dismissState: DismissState,
+    isTaskDone: Boolean
 ) {
     val direction = dismissState.dismissDirection ?: return
     val color = when (direction) {
         DismissDirection.EndToStart -> Red
-        DismissDirection.StartToEnd -> Green
+        DismissDirection.StartToEnd -> if (isTaskDone) GrayLight else Green
     }
 
     Row(
@@ -41,8 +44,8 @@ fun DismissBackground(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         if (direction == DismissDirection.StartToEnd) Icon(
-            Icons.Default.Done,
-            contentDescription = "done task",
+            if (isTaskDone) Icons.Default.Close else Icons.Default.Done,
+            contentDescription = "change task status",
             tint = White
         )
         Spacer(modifier = Modifier)
