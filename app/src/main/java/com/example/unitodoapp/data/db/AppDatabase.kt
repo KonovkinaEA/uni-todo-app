@@ -9,7 +9,7 @@ import com.example.unitodoapp.data.db.entities.RevisionDbEntity
 import com.example.unitodoapp.data.db.entities.TodoDbEntity
 
 @Database(
-    version = 0,
+    version = 1,
     entities = [
         ImportanceLevelsDbEntity::class,
         TodoDbEntity::class,

@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
-    repository: Repository
+    private val repository: Repository
 ) : ViewModel() {
     private val _uiEvent = Channel<ListUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -29,11 +29,13 @@ class ListViewModel @Inject constructor(
                     _uiEvent.send(ListUiEvent.NavigateToNewTodoItem)
                 }
             }
+
             is ListUiAction.EditTodoItem -> {
                 viewModelScope.launch {
                     _uiEvent.send(ListUiEvent.NavigateToEditTodoItem(action.todoItem.id))
                 }
             }
+
             is ListUiAction.UpdateTodoItem -> updateTodoItem(action.todoItem)
             is ListUiAction.RemoveTodoItem -> removeTodoItem(action.todoItem)
         }
@@ -44,10 +46,14 @@ class ListViewModel @Inject constructor(
     }
 
     private fun updateTodoItem(todoItem: TodoItem) {
-        /*TODO*/
+        viewModelScope.launch {
+            repository.updateItem(todoItem)
+        }
     }
 
     private fun removeTodoItem(todoItem: TodoItem) {
-        /*TODO*/
+        viewModelScope.launch {
+            repository.removeItem(todoItem.id)
+        }
     }
 }

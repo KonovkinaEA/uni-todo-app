@@ -1,20 +1,20 @@
 package com.example.unitodoapp.data
 
-import com.example.unitodoapp.data.model.Importance
+import com.example.unitodoapp.data.db.TodoItemDao
 import com.example.unitodoapp.data.model.TodoItem
+import com.example.unitodoapp.utils.createTodo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class TodoItemsRepository @Inject constructor() : Repository {
+class TodoItemsRepository @Inject constructor(
+    private val todoItemDao: TodoItemDao
+) : Repository {
     private val _todoItems: MutableStateFlow<List<TodoItem>> = MutableStateFlow(listOf())
     override val todoItems = _todoItems.asStateFlow()
-
-    init {
-        _todoItems.update { getHardcodedTodoItems() }
-    }
-
     override suspend fun getItem(id: String) = _todoItems.value.firstOrNull { it.id == id }
 
     override suspend fun addItem(todoItem: TodoItem) {
@@ -23,6 +23,8 @@ class TodoItemsRepository @Inject constructor() : Repository {
             updatedList.add(todoItem)
             updatedList.toList()
         }
+        val newTodo = createTodo(todoItem)
+        todoItemDao.insertNewTodoItemData(newTodo.toTodoDbEntity())
     }
 
     override suspend fun updateItem(todoItem: TodoItem) {
@@ -34,86 +36,20 @@ class TodoItemsRepository @Inject constructor() : Repository {
                 }
             }
         }
+        val updatedTodo = createTodo(todoItem)
+        todoItemDao.updateTodoData(updatedTodo.toTodoDbEntity())
     }
 
     override suspend fun removeItem(id: String) {
         _todoItems.update { currentList ->
             currentList.filter { it.id != id }
         }
+        todoItemDao.deleteTodoDataById(id)
     }
 
-    private fun getHardcodedTodoItems(): List<TodoItem> {
-        return listOf(
-            TodoItem(
-                text = "Закончить проект",
-                importance = Importance.IMPORTANT
-            ),
-            TodoItem(
-                text = "Купить продукты",
-                importance = Importance.BASIC
-            ),
-            TodoItem(
-                text = "Подготовить презентацию",
-                importance = Importance.IMPORTANT,
-                deadline = 1693774800000L
-            ),
-            TodoItem(
-                text = "Прочитать книгу",
-                deadline = 1696453200000L
-            ),
-            TodoItem(
-                text = "Сходить в спортзал",
-                importance = Importance.BASIC,
-                isDone = true
-            ),
-            TodoItem(
-                text = "Записаться на курс программирования",
-                importance = Importance.IMPORTANT,
-                deadline = 1699650000000L
-            ),
-            TodoItem(
-                text = "Организовать семейный ужин",
-                importance = Importance.BASIC,
-                deadline = 1699131600000L
-            ),
-            TodoItem(
-                text = "Приготовить подарок к дню рождения друга",
-                isDone = true
-            ),
-            TodoItem(
-                text = "Проверить и отредактировать доклад для конференции по программированию." +
-                        "Подготовить презентацию, составить план выступления и подобрать иллюстрации." +
-                        "Уделить особое внимание структуре и логической последовательности." +
-                        "Проверить правильность использования терминов и грамматических конструкций.",
-                importance = Importance.IMPORTANT,
-                deadline = 1698526800000L
-            ),
-            TodoItem(
-                text = "Прогуляться в парке"
-            ),
-            TodoItem(
-                text = "Завершить исследовательскую работу",
-                importance = Importance.IMPORTANT
-            ),
-            TodoItem(
-                text = "Оплатить счета",
-                importance = Importance.BASIC,
-                isDone = true
-            ),
-            TodoItem(
-                text = "Разработать новый дизайн интерфейса",
-                importance = Importance.IMPORTANT,
-                deadline = 1697317200000L
-            ),
-            TodoItem(
-                text = "Посмотреть новый фильм",
-                deadline = 1703970000000L
-            ),
-            TodoItem(
-                text = "Подготовиться к собеседованию",
-                importance = Importance.BASIC,
-                isDone = true
-            )
-        )
+    override suspend fun loadDataFromDB() {
+        withContext(Dispatchers.IO) {
+            _todoItems.value = todoItemDao.getAllTodoData().map { it.toTodoItem() }
+        }
     }
 }

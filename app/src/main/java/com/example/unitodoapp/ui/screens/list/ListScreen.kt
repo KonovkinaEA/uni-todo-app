@@ -15,7 +15,6 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -39,19 +38,15 @@ import com.example.unitodoapp.ui.theme.White
 fun ListScreen(navController: NavHostController) {
     val viewModel: ListViewModel = hiltViewModel()
     val scrollBehavior =
-        TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-    val list by  viewModel.todoItems.collectAsState()
+            TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val list = viewModel.todoItems.collectAsState().value
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect {
             when (it) {
                 ListUiEvent.NavigateToNewTodoItem -> navController.navigate(Edit.route)
                 ListUiEvent.NavigateToSettings -> navController.navigate(Settings.route)
-                is ListUiEvent.NavigateToEditTodoItem -> navController.navigate(
-                    Edit.navToOrderWithArgs(
-                        it.id
-                    )
-                )
+                is ListUiEvent.NavigateToEditTodoItem -> navController.navigate(Edit.navToOrderWithArgs(it.id))
             }
         }
     }
@@ -89,10 +84,8 @@ fun ListScreen(navController: NavHostController) {
         ) {
             ListToDoes(
                 toDoes = list,
-                onCheckboxClick = { todo -> viewModel.onUiAction(ListUiAction.UpdateTodoItem(todo)) },
-                onItemClick = { todo -> viewModel.onUiAction(ListUiAction.EditTodoItem(todo)) },
-                onDeleteSwipe = { todo -> viewModel.onUiAction(ListUiAction.RemoveTodoItem(todo)) },
-                onUpdateSwipe = { todo -> viewModel.onUiAction(ListUiAction.UpdateTodoItem(todo)) },
+                onCheckboxClick = { viewModel.onUiAction(ListUiAction.UpdateTodoItem(it)) },
+                onItemClick = { viewModel.onUiAction(ListUiAction.EditTodoItem(it)) }
             )
         }
     }
