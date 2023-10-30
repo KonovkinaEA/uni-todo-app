@@ -7,6 +7,7 @@ import com.example.unitodoapp.data.model.TodoItem
 import com.example.unitodoapp.ui.screens.list.actions.ListUiAction
 import com.example.unitodoapp.ui.screens.list.actions.ListUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -46,13 +47,13 @@ class ListViewModel @Inject constructor(
     }
 
     private fun updateTodoItem(todoItem: TodoItem) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.updateItem(todoItem)
         }
     }
 
     private fun removeTodoItem(todoItem: TodoItem) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.removeItem(todoItem.id)
         }
     }
