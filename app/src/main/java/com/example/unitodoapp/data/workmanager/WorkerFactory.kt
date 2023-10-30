@@ -14,6 +14,19 @@ class WorkerFactory @Inject constructor(
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters
-    ): ListenableWorker = NetworkUnavailableWorker(repository, appContext, workerParameters)
+    ): ListenableWorker {
+        return when (workerClassName) {
+            NetworkUnavailableWorker::class.java.name -> {
+                NetworkUnavailableWorker(repository, appContext, workerParameters)
+            }
 
+            DataUpdatesWorker::class.java.name -> {
+                DataUpdatesWorker(repository, appContext, workerParameters)
+            }
+
+            else -> {
+                NetworkAvailableWorker(repository, appContext, workerParameters)
+            }
+        }
+    }
 }
