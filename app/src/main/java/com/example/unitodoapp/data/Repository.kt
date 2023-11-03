@@ -12,7 +12,7 @@ interface Repository {
     suspend fun removeItem(id: String)
     suspend fun loadDataFromDB()
     suspend fun loadDataFromServer()
-    fun reloadData()
+    suspend fun reloadData()
     fun errorListLiveData(): MutableLiveData<Boolean>
     fun errorItemLiveData(): MutableLiveData<Boolean>
 

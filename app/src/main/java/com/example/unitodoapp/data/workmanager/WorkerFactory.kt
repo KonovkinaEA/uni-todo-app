@@ -19,11 +19,6 @@ class WorkerFactory @Inject constructor(
             NetworkUnavailableWorker::class.java.name -> {
                 NetworkUnavailableWorker(repository, appContext, workerParameters)
             }
-
-            DataUpdatesWorker::class.java.name -> {
-                DataUpdatesWorker(repository, appContext, workerParameters)
-            }
-
             else -> {
                 NetworkAvailableWorker(repository, appContext, workerParameters)
             }

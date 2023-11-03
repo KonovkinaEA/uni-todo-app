@@ -1,7 +1,5 @@
 package com.example.unitodoapp.data
 
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import androidx.lifecycle.MutableLiveData
 import com.example.unitodoapp.data.api.ApiService
 import com.example.unitodoapp.data.api.model.ItemResponse
@@ -21,7 +19,6 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class TodoItemsRepository @Inject constructor(
-    private val connectivityManager: ConnectivityManager,
     private val todoItemDao: TodoItemDao,
     private val apiService: ApiService,
     private val revisionDao: RevisionDao
@@ -36,86 +33,68 @@ class TodoItemsRepository @Inject constructor(
     override suspend fun addItem(todoItem: TodoItem) =
         withContext(Dispatchers.IO) {
             try {
-                if (isNetworkAvailable()) {
-                    val todoItemServer = toTodoItemServer(todoItem)
-                    val response = apiService.addTodoItem(
-                        revisionDao.getCurrentRevision().toString(), todoItemServer
-                    )
-                    updateRevisionNetworkAvailable(response)
-                } else updateRevisionNetworkUnavailable()
-                handleErrorWhenAdding(todoItem)
+                val todoItemServer = toTodoItemServer(todoItem)
+                val response = apiService.addTodoItem(
+                    revisionDao.getCurrentRevision().toString(), todoItemServer
+                )
+                updateRevisionNetworkAvailable(response)
             } catch (e: Exception) {
-                handleErrorWhenAdding(todoItem)
+                updateRevisionNetworkUnavailable()
             }
+            _todoItems.update { currentList ->
+                val updatedList = currentList.toMutableList()
+                updatedList.add(todoItem)
+                updatedList.toList()
+            }
+            val newTodo = createTodo(todoItem)
+            todoItemDao.insertNewTodoItemData(newTodo.toTodoDbEntity())
         }
-
-    private fun handleErrorWhenAdding(todoItem: TodoItem) {
-        _todoItems.update { currentList ->
-            val updatedList = currentList.toMutableList()
-            updatedList.add(todoItem)
-            updatedList.toList()
-        }
-        val newTodo = createTodo(todoItem)
-        todoItemDao.insertNewTodoItemData(newTodo.toTodoDbEntity())
-    }
 
     override suspend fun updateItem(todoItem: TodoItem) =
         withContext(Dispatchers.IO) {
             val containsTodoItem = _todoItems.value.any { it.id == todoItem.id }
             if (containsTodoItem) {
                 try {
-                    if (isNetworkAvailable()) {
-                        val todoItemServer = toTodoItemServer(todoItem)
-                        val response = apiService.updateTodoItem(
-                            revisionDao.getCurrentRevision().toString(),
-                            todoItem.id, todoItemServer
-                        )
-                        updateRevisionNetworkAvailable(response)
-                    } else updateRevisionNetworkUnavailable()
-                    handleErrorWhenAdding(todoItem)
+                    val todoItemServer = toTodoItemServer(todoItem)
+                    val response = apiService.updateTodoItem(
+                        revisionDao.getCurrentRevision().toString(),
+                        todoItem.id, todoItemServer
+                    )
+                    updateRevisionNetworkAvailable(response)
                 } catch (e: Exception) {
-                    handleErrorWhenUpdating(todoItem)
+                    updateRevisionNetworkUnavailable()
                 }
+                _todoItems.update { currentList ->
+                    currentList.map {
+                        when (it.id) {
+                            todoItem.id -> todoItem
+                            else -> it
+                        }
+                    }
+                }
+                val updatedTodo = createTodo(todoItem)
+                todoItemDao.updateTodoData(updatedTodo.toTodoDbEntity())
             }
         }
-
-    private fun handleErrorWhenUpdating(todoItem: TodoItem) {
-        _todoItems.update { currentList ->
-            currentList.map {
-                when (it.id) {
-                    todoItem.id -> todoItem
-                    else -> it
-                }
-            }
-        }
-        val updatedTodo = createTodo(todoItem)
-        todoItemDao.updateTodoData(updatedTodo.toTodoDbEntity())
-    }
 
     override suspend fun removeItem(id: String) =
         withContext(Dispatchers.IO) {
             val containsTodoItem = _todoItems.value.any { it.id == id }
             if (containsTodoItem) {
                 try {
-                    if (isNetworkAvailable()) {
-                        val response = apiService.deleteTodoItem(
-                            revisionDao.getCurrentRevision().toString(), id
-                        )
-                        updateRevisionNetworkAvailable(response)
-                    } else updateRevisionNetworkUnavailable()
-                    handleErrorWhenRemoving(id)
+                    val response = apiService.deleteTodoItem(
+                        revisionDao.getCurrentRevision().toString(), id
+                    )
+                    updateRevisionNetworkAvailable(response)
                 } catch (e: Exception) {
-                    handleErrorWhenRemoving(id)
+                    updateRevisionNetworkUnavailable()
                 }
+                _todoItems.update { currentList ->
+                    currentList.filter { it.id != id }
+                }
+                todoItemDao.deleteTodoDataById(id)
             }
         }
-
-    private fun handleErrorWhenRemoving(id: String) {
-        _todoItems.update { currentList ->
-            currentList.filter { it.id != id }
-        }
-        todoItemDao.deleteTodoDataById(id)
-    }
 
     private suspend fun updateRevisionNetworkAvailable(response: Response<ItemResponse>) =
         withContext(Dispatchers.IO) {
@@ -180,20 +159,6 @@ class TodoItemsRepository @Inject constructor(
             }
         }
 
-    private fun isNetworkAvailable(): Boolean {
-        val networkCapabilities =
-            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-    }
-
-    override fun reloadData() {
-        TODO("Not yet implemented")
-    }
-
-    override fun errorListLiveData() = errorListLiveData
-
-    override fun errorItemLiveData() = errorItemLiveData
-
     private suspend fun updateDataDB(dataFromServer: TodoListResponse) =
         withContext(Dispatchers.IO) {
             val todoItemsFromServer =
@@ -205,6 +170,13 @@ class TodoItemsRepository @Inject constructor(
             val todoDbList = _todoItems.value.map { createTodo(it).toTodoDbEntity() }
             todoItemDao.replaceAllTodoItems(todoDbList)
         }
+
+    override suspend fun reloadData() = loadDataFromServer()
+
+
+    override fun errorListLiveData() = errorListLiveData
+
+    override fun errorItemLiveData() = errorItemLiveData
 
     override fun numOfCompleted(): Int = _todoItems.value.count { it.isDone }
     override fun undoneTodoItems(): List<TodoItem> = _todoItems.value.filter { !it.isDone }

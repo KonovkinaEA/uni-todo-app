@@ -25,17 +25,13 @@ class CustomWorkManager @Inject constructor(
         loadDataWork()
     }
 
-    fun reloadData() {
-        loadDataWork()
-    }
-
     private fun loadDataWork() {
         if (!isNetworkAvailable()) {
             loadDataFromDB()
         } else loadDataFromServer()
     }
 
-    fun isNetworkAvailable(): Boolean {
+    private fun isNetworkAvailable(): Boolean {
         val networkCapabilities =
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
