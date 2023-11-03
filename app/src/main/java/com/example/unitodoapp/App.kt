@@ -10,6 +10,7 @@ import javax.inject.Inject
 class App : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: WorkerFactory
+
     override fun getWorkManagerConfiguration(): Configuration =
         Configuration.Builder()
             .setWorkerFactory(workerFactory)
