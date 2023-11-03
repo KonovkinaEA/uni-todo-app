@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CustomWorkManager @Inject constructor (
+class CustomWorkManager @Inject constructor(
     private val connectivityManager: ConnectivityManager,
     private val workManager: WorkManager
 ) {
@@ -30,14 +30,14 @@ class CustomWorkManager @Inject constructor (
     }
 
     private fun loadDataWork() {
-        loadDataFromServer()
         if (!isNetworkAvailable()) {
             loadDataFromDB()
-        }
+        } else loadDataFromServer()
     }
 
     fun isNetworkAvailable(): Boolean {
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        val networkCapabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
     }
 
@@ -46,7 +46,11 @@ class CustomWorkManager @Inject constructor (
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val request = PeriodicWorkRequest.Builder(DataUpdatesWorker::class.java, REPEAT_LOAD_INTERVAL, TimeUnit.HOURS) //wtf
+        val request = PeriodicWorkRequest.Builder(
+            NetworkAvailableWorker::class.java,
+            REPEAT_LOAD_INTERVAL,
+            TimeUnit.HOURS
+        )
             .setConstraints(constraints)
             .build()
 
@@ -74,6 +78,7 @@ class CustomWorkManager @Inject constructor (
                 request
             )
     }
+
     private fun loadDataFromDB() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.NOT_REQUIRED)

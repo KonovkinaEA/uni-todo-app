@@ -21,6 +21,7 @@ interface WorkerModule {
             return CustomWorkManager(connectivityManager, workManager)
         }
 
+
         @Singleton
         @Provides
         fun provideWorkManagerInstance(@ApplicationContext context: Context): WorkManager {

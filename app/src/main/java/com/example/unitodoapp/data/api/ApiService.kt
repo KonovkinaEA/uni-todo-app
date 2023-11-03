@@ -1,7 +1,7 @@
 package com.example.unitodoapp.data.api
 
-import com.example.unitodoapp.data.api.model.ItemContainer
 import com.example.unitodoapp.data.api.model.ItemResponse
+import com.example.unitodoapp.data.api.model.TodoItemServer
 import com.example.unitodoapp.data.api.model.TodoListContainer
 import com.example.unitodoapp.data.api.model.TodoListResponse
 import retrofit2.Response
@@ -21,12 +21,12 @@ interface ApiService {
 
     @POST("list")
     suspend fun addTodoItem(
-        @Header("revision") revision: String, @Body element: ItemContainer
+        @Header("revision") revision: String, @Body element: TodoItemServer
     ): Response<ItemResponse>
 
     @PUT("list/{id}")
     suspend fun updateTodoItem(
-        @Header("revision") revision: String, @Path("id") id: String, @Body element: ItemContainer
+        @Header("revision") revision: String, @Path("id") id: String, @Body element: TodoItemServer
     ): Response<ItemResponse>
 
     @DELETE("list/{id}")
@@ -34,7 +34,7 @@ interface ApiService {
         @Header("revision") revision: String, @Path("id") id: String
     ): Response<ItemResponse>
 
-    @PATCH("list")
+    @PATCH("db")
     suspend fun patchList(
         @Header("revision") revision: String, @Body list: TodoListContainer
     ): Response<TodoListResponse>

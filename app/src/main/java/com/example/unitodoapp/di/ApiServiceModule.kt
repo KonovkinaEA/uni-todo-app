@@ -14,6 +14,7 @@ import retrofit2.Retrofit
 import javax.inject.Singleton
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import okhttp3.logging.HttpLoggingInterceptor
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -37,17 +38,27 @@ interface ApiServiceModule {
         fun provideGsonConverterFactory(): GsonConverterFactory {
             return GsonConverterFactory.create()
         }
+
         @Singleton
         @Provides
         fun provideOkHttpClient(
+            loggingInterceptor: HttpLoggingInterceptor,
             retryInterceptor: RetryInterceptor
         ): OkHttpClient {
             return OkHttpClient.Builder()
+                .addInterceptor(loggingInterceptor)
                 .addInterceptor(retryInterceptor)
                 .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
                 .build()
+        }
+
+        @Provides
+        fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+            val logging = HttpLoggingInterceptor()
+            logging.level = HttpLoggingInterceptor.Level.BODY
+            return logging
         }
 
         @Singleton
