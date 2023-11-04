@@ -1,7 +1,9 @@
 package com.example.unitodoapp.data.workmanager
 
 import android.net.ConnectivityManager
+import android.net.Network
 import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -21,6 +23,7 @@ class CustomWorkManager @Inject constructor(
 ) {
 
     fun setWorkers() {
+        monitorNetworkConnection()
         refreshPeriodicWork()
         loadDataWork()
     }
@@ -91,4 +94,40 @@ class CustomWorkManager @Inject constructor(
                 request
             )
     }
+
+    private fun monitorNetworkConnection() {
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .build()
+
+        connectivityManager.registerNetworkCallback(request, getNetworkCallback())
+    }
+
+    private fun getNetworkCallback() =
+        object : ConnectivityManager.NetworkCallback() {
+
+            private val availableNetworks: MutableSet<Network> = HashSet()
+
+            override fun onAvailable(network: Network) {
+                val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+                val hasInternetCapability =
+                    networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+
+                if (hasInternetCapability == true) {
+                    availableNetworks.add(network)
+                    sendNetworkState()
+                }
+            }
+
+            override fun onLost(network: Network) {
+                availableNetworks.remove(network)
+            }
+
+            private fun sendNetworkState() {
+                if (availableNetworks.isNotEmpty()) loadDataFromServer()
+
+            }
+        }
 }
