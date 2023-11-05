@@ -7,6 +7,7 @@ import com.example.unitodoapp.data.Repository
 import com.example.unitodoapp.data.model.Importance
 import com.example.unitodoapp.data.model.TodoItem
 import com.example.unitodoapp.data.navigation.Edit
+import com.example.unitodoapp.notifications.TodoAlarmScheduler
 import com.example.unitodoapp.ui.screens.edit.actions.EditUiAction
 import com.example.unitodoapp.ui.screens.edit.actions.EditUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,9 +22,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditViewModel @Inject constructor(
+    private val alarmScheduler: TodoAlarmScheduler,
     private val repository: Repository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
     private var todoItem = TodoItem()
     private var isNewItem: Boolean = true
 
@@ -40,33 +43,39 @@ class EditViewModel @Inject constructor(
                 todoItem = item
                 isNewItem = false
 
-                _uiState.update { uiState.value.copy(
-                    text = item.text,
-                    importance = item.importance,
-                    deadline = item.deadline ?: uiState.value.deadline,
-                    isDeadlineSet = item.deadline != null,
-                    isNewItem = false
-                ) }
+                _uiState.update {
+                    uiState.value.copy(
+                        text = item.text,
+                        importance = item.importance,
+                        deadline = item.deadline ?: uiState.value.deadline,
+                        isDeadlineSet = item.deadline != null,
+                        isNewItem = false
+                    )
+                }
             }
         }
     }
 
     fun onUiAction(action: EditUiAction) {
-        when(action) {
+        when (action) {
             EditUiAction.SaveTask -> saveTodoItem()
             EditUiAction.DeleteTask -> removeTodoItem()
             EditUiAction.NavigateUp -> viewModelScope.launch {
                 _uiEvent.send(EditUiEvent.NavigateUp)
             }
+
             is EditUiAction.UpdateText -> _uiState.update {
                 uiState.value.copy(text = action.text)
             }
+
             is EditUiAction.UpdateDeadlineSet -> _uiState.update {
                 uiState.value.copy(isDeadlineSet = action.isDeadlineSet)
             }
+
             is EditUiAction.UpdateImportance -> _uiState.update {
                 uiState.value.copy(importance = action.importance)
             }
+
             is EditUiAction.UpdateDeadline -> _uiState.update {
                 uiState.value.copy(deadline = action.deadline)
             }
@@ -79,6 +88,18 @@ class EditViewModel @Inject constructor(
         todoItem.text = uiState.value.text
         todoItem.importance = uiState.value.importance
         todoItem.deadline = if (uiState.value.isDeadlineSet) uiState.value.deadline else null
+
+
+        if (todoItem.deadline != null) {
+            //TODO DEBUG Log.d("alarmNotify", "todo save deadline:${todoItem.deadline!!.convertToDateTimeFormat()}")
+            alarmScheduler.schedule(
+                time = todoItem.deadline!!,
+                key = todoItem.id.hashCode(),
+                title = todoItem.text,
+                importance = todoItem.importance.toStringResource()
+            )
+        }
+
         if (isNewItem) todoItem.modificationDate = System.currentTimeMillis()
 
         viewModelScope.launch(Dispatchers.IO) {

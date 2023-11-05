@@ -2,12 +2,14 @@ package com.example.unitodoapp.di
 
 import android.content.Context
 import androidx.work.WorkManager
-import com.example.unitodoapp.data.TodoItemsRepository
 import com.example.unitodoapp.data.Repository
+import com.example.unitodoapp.data.TodoItemsRepository
 import com.example.unitodoapp.data.db.AppDatabase
 import com.example.unitodoapp.data.db.RevisionDao
 import com.example.unitodoapp.data.db.TodoItemDao
 import com.example.unitodoapp.data.workmanager.CustomWorkManager
+import com.example.unitodoapp.notifications.DeadlineNotificationService
+import com.example.unitodoapp.notifications.TodoAlarmScheduler
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -24,7 +26,25 @@ interface AppModule {
     @Binds
     fun provideRepository(repository: TodoItemsRepository): Repository
 
+
     companion object {
+
+        @Singleton
+        @Provides
+        fun provideNotificationService(
+            @ApplicationContext context: Context
+        ): DeadlineNotificationService {
+            return DeadlineNotificationService(context)
+        }
+
+        @Singleton
+        @Provides
+        fun provideAlarmScheduler(
+            @ApplicationContext context: Context
+        ): TodoAlarmScheduler {
+            return TodoAlarmScheduler(context)
+        }
+
         @Singleton
         @Provides
         fun provideTodoItemDao(database: AppDatabase): TodoItemDao {

@@ -1,13 +1,21 @@
 package com.example.unitodoapp.utils
 
+import android.content.SharedPreferences
 import com.example.unitodoapp.data.db.entities.Todo
 import com.example.unitodoapp.data.model.Importance
 import com.example.unitodoapp.data.model.TodoItem
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
+
 
 fun Long.convertToDateFormat(): String =
     SimpleDateFormat("d MMMM yyyy", Locale.getDefault()).format(this)
+
+fun Long.convertToDateTimeFormat(): String =
+    SimpleDateFormat("d MMMM yyyy HH:mm:ss", Locale.getDefault()).format(this)
+
+fun unixToDate(date: Long) = Date(date * MS_IN_S)
 
 fun String.convertToImportance(): Importance =
     when (this) {
