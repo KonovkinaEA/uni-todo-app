@@ -43,3 +43,9 @@ fun getImportanceId(importance: Importance): Int {
         else -> IMPORTANCE_LOW_ID
     }
 }
+
+fun saveNotificationsPermission(pref: SharedPreferences, permission: Boolean) {
+    pref.edit()
+        .putBoolean(NOTIFICATION_PERMISSION_KEY, permission)
+        .apply()
+}

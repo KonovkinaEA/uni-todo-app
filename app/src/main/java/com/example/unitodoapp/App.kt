@@ -40,9 +40,6 @@ class App : Application(), Configuration.Provider {
 
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
-
-        } else {
-            TODO("VERSION.SDK_INT < O")
         }
     }
 }
