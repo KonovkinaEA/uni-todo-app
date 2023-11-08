@@ -19,4 +19,9 @@
     <string name="system_theme_system">Системная</string>
     <string name="settings_close_button">Закрыть окно настроек</string>
     <string name="settings_theme_title">Тема</string>
+    <string name="notifications_disable">У приложения нет разрешения на уведомления</string>
+    <string name="notif_title">Уведомления</string>
+    <string name="importance_for_notif">Важность: </string>
+    <string name="notif_channel_description">Используется для уведомлений о дедлайнах дел</string>
+
 </resources>

@@ -34,10 +34,11 @@ fun EditScreen(
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect {
-            when(it) {
+            when (it) {
                 EditUiEvent.NavigateUp -> {
                     navController.navigate(List.route) { popUpTo(List.route) { inclusive = true } }
                 }
+
                 EditUiEvent.SaveTask -> {
                     navController.navigate(List.route) { popUpTo(List.route) { inclusive = true } }
                 }

@@ -14,8 +14,14 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
     private val settingsDataStore = appContext.protoDataStore
 
     suspend fun saveThemeMode(themeMode: ThemeMode) {
-        settingsDataStore.updateData { data ->
-            data.copy(themeMode = themeMode)
+        settingsDataStore.updateData { settings ->
+            settings.copy(themeMode = themeMode)
+        }
+    }
+
+    suspend fun saveNotificationsPermission(notifyPermissionGranted: Boolean) {
+        settingsDataStore.updateData { settings ->
+            settings.copy(notifyPermissionGranted = notifyPermissionGranted)
         }
     }
 
