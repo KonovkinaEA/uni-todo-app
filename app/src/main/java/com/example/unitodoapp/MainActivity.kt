@@ -1,7 +1,6 @@
 package com.example.unitodoapp
 
 import android.Manifest
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -17,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.unitodoapp.data.datastore.DataStoreManager
 import com.example.unitodoapp.data.workmanager.CustomWorkManager
@@ -24,8 +24,8 @@ import com.example.unitodoapp.ui.navigation.AppNavHost
 import com.example.unitodoapp.ui.screens.settings.SettingsState
 import com.example.unitodoapp.ui.screens.settings.model.ThemeMode
 import com.example.unitodoapp.ui.theme.TodoAppTheme
-import com.example.unitodoapp.utils.saveNotificationsPermission
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,9 +36,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var workManager: CustomWorkManager
-
-    @Inject
-    lateinit var pref: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +75,10 @@ class MainActivity : ComponentActivity() {
                 ContextCompat.checkSelfPermission(
                     this, Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED -> {
-                    saveNotificationsPermission(pref, true)
+                    lifecycleScope.launch {
+                        dataStoreManager.saveNotificationsPermission( true)
+                    }
+
                 }
 
                 shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {}
@@ -88,9 +88,13 @@ class MainActivity : ComponentActivity() {
                         ActivityResultContracts.RequestPermission()
                     ) { isGranted ->
                         if (isGranted) {
-                            saveNotificationsPermission(pref, true)
+                            lifecycleScope.launch {
+                                dataStoreManager.saveNotificationsPermission( true)
+                            }
                         } else {
-                            saveNotificationsPermission(pref, false)
+                            lifecycleScope.launch {
+                                dataStoreManager.saveNotificationsPermission( false)
+                            }
                             Toast.makeText(this, R.string.notifications_disable, Toast.LENGTH_LONG)
                                 .show()
                         }

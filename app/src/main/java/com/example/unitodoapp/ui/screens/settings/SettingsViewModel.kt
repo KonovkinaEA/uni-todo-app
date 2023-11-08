@@ -51,5 +51,6 @@ class SettingsViewModel @Inject constructor(
 
 @Serializable
 data class SettingsState(
-    val themeMode: ThemeMode = ThemeMode.LIGHT
+    val themeMode: ThemeMode = ThemeMode.LIGHT,
+    val notifyPermissionGranted: Boolean = false
 )

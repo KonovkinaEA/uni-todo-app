@@ -1,6 +1,5 @@
 package com.example.unitodoapp.utils
 
-import android.content.SharedPreferences
 import com.example.unitodoapp.data.db.entities.Todo
 import com.example.unitodoapp.data.model.Importance
 import com.example.unitodoapp.data.model.TodoItem
@@ -42,10 +41,4 @@ fun getImportanceId(importance: Importance): Int {
         Importance.BASIC -> IMPORTANCE_BASIC_ID
         else -> IMPORTANCE_LOW_ID
     }
-}
-
-fun saveNotificationsPermission(pref: SharedPreferences, permission: Boolean) {
-    pref.edit()
-        .putBoolean(NOTIFICATION_PERMISSION_KEY, permission)
-        .apply()
 }

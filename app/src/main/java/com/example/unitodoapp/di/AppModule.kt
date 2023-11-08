@@ -1,7 +1,6 @@
 package com.example.unitodoapp.di
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.work.WorkManager
 import com.example.unitodoapp.data.Repository
 import com.example.unitodoapp.data.TodoItemsRepository
@@ -29,11 +28,6 @@ interface AppModule {
 
     companion object {
 
-        @Singleton
-        @Provides
-        fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-            return context.getSharedPreferences("TABLE", Context.MODE_PRIVATE)
-        }
 
         @Singleton
         @Provides
