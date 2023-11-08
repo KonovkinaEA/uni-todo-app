@@ -12,3 +12,11 @@ const val IMPORTANCE_LOW_ID = 1
 const val INTENT_ID_KEY = "id"
 const val INTENT_ID_TITLE_KEY = "title"
 const val INTENT_ID_IMPORTANCE_KEY = "importance"
+
+const val CONNECT_TIMEOUT = 1L
+const val READ_TIMEOUT = 1L
+const val WRITE_TIMEOUT = 1L
+
+const val RETRY_COUNT = 1
+
+const val REPEAT_LOAD_INTERVAL = 8L

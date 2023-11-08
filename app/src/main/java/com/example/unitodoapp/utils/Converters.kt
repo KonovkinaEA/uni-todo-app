@@ -1,5 +1,6 @@
 package com.example.unitodoapp.utils
 
+import com.example.unitodoapp.data.api.model.TodoItemServer
 import com.example.unitodoapp.data.db.entities.Todo
 import com.example.unitodoapp.data.model.Importance
 import com.example.unitodoapp.data.model.TodoItem
@@ -16,7 +17,6 @@ fun String.convertToImportance(): Importance =
         "basic" -> Importance.BASIC
         else -> Importance.LOW
     }
-
 fun createTodo(todoItem: TodoItem): Todo {
     return Todo(
         id = todoItem.id,
@@ -35,4 +35,17 @@ fun getImportanceId(importance: Importance): Int {
         Importance.BASIC -> IMPORTANCE_BASIC_ID
         else -> IMPORTANCE_LOW_ID
     }
+}
+
+fun toTodoItemServer(todoItem: TodoItem): TodoItemServer {
+    return TodoItemServer(
+        id = todoItem.id,
+        text = todoItem.text,
+        importance = todoItem.importance.toStringForItemServer(),
+        deadline = todoItem.deadline,
+        done = todoItem.isDone,
+        createdAt = todoItem.creationDate,
+        changedAt = todoItem.modificationDate,
+        lastUpdatedBy = "cf1"
+    )
 }

@@ -1,26 +1,82 @@
 package com.example.unitodoapp.data.workmanager
 
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import com.example.unitodoapp.utils.REPEAT_LOAD_INTERVAL
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CustomWorkManager @Inject constructor (
+class CustomWorkManager @Inject constructor(
+    private val connectivityManager: ConnectivityManager,
     private val workManager: WorkManager
 ) {
 
     fun setWorkers() {
+        monitorNetworkConnection()
+        refreshPeriodicWork()
         loadDataWork()
     }
 
     private fun loadDataWork() {
-        loadDataFromDB()
+        if (!isNetworkAvailable()) {
+            loadDataFromDB()
+        } else loadDataFromServer()
     }
 
+    private fun isNetworkAvailable(): Boolean {
+        val networkCapabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    }
+
+    private fun refreshPeriodicWork() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val request = PeriodicWorkRequest.Builder(
+            NetworkAvailableWorker::class.java,
+            REPEAT_LOAD_INTERVAL,
+            TimeUnit.HOURS
+        )
+            .setConstraints(constraints)
+            .build()
+
+        workManager
+            .enqueueUniquePeriodicWork(
+                "refreshWorker",
+                ExistingPeriodicWorkPolicy.KEEP,
+                request
+            )
+    }
+
+    private fun loadDataFromServer() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val request = OneTimeWorkRequest.Builder(NetworkAvailableWorker::class.java)
+            .setConstraints(constraints)
+            .build()
+
+        workManager
+            .enqueueUniqueWork(
+                "loadServerWorker",
+                ExistingWorkPolicy.KEEP,
+                request
+            )
+    }
 
     private fun loadDataFromDB() {
         val constraints = Constraints.Builder()
@@ -38,4 +94,40 @@ class CustomWorkManager @Inject constructor (
                 request
             )
     }
+
+    private fun monitorNetworkConnection() {
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+            .build()
+
+        connectivityManager.registerNetworkCallback(request, getNetworkCallback())
+    }
+
+    private fun getNetworkCallback() =
+        object : ConnectivityManager.NetworkCallback() {
+
+            private val availableNetworks: MutableSet<Network> = HashSet()
+
+            override fun onAvailable(network: Network) {
+                val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+                val hasInternetCapability =
+                    networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+
+                if (hasInternetCapability == true) {
+                    availableNetworks.add(network)
+                    sendNetworkState()
+                }
+            }
+
+            override fun onLost(network: Network) {
+                availableNetworks.remove(network)
+            }
+
+            private fun sendNetworkState() {
+                if (availableNetworks.isNotEmpty()) loadDataFromServer()
+
+            }
+        }
 }
