@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -69,14 +68,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkNotificationPermission() {
-        Log.d("checkNotify", "notify call")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             when {
                 ContextCompat.checkSelfPermission(
                     this, Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED -> {
                     lifecycleScope.launch {
-                        dataStoreManager.saveNotificationsPermission( true)
+                        dataStoreManager.saveNotificationsPermission(true)
                     }
 
                 }
@@ -89,11 +87,11 @@ class MainActivity : ComponentActivity() {
                     ) { isGranted ->
                         if (isGranted) {
                             lifecycleScope.launch {
-                                dataStoreManager.saveNotificationsPermission( true)
+                                dataStoreManager.saveNotificationsPermission(true)
                             }
                         } else {
                             lifecycleScope.launch {
-                                dataStoreManager.saveNotificationsPermission( false)
+                                dataStoreManager.saveNotificationsPermission(false)
                             }
                             Toast.makeText(this, R.string.notifications_disable, Toast.LENGTH_LONG)
                                 .show()

@@ -91,7 +91,6 @@ class EditViewModel @Inject constructor(
 
 
         if (todoItem.deadline != null) {
-            //TODO DEBUG Log.d("alarmNotify", "todo save deadline:${todoItem.deadline!!.convertToDateTimeFormat()}")
             alarmScheduler.schedule(
                 time = todoItem.deadline!!,
                 key = todoItem.id.hashCode(),

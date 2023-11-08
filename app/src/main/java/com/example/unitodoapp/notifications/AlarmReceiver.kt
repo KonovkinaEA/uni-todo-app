@@ -21,8 +21,6 @@ class AlarmReceiver : BroadcastReceiver() {
         val title = intent.getStringExtra(INTENT_ID_TITLE_KEY).toString()
         val importance = context.getString(R.string.importance_for_notif) +
                 context.getString(intent.getIntExtra(INTENT_ID_IMPORTANCE_KEY, 0))
-        //TODO DEBUG Log.d("alarmNotify", "alarm recieve:\nid = $id\ntitile = $title\nimportance = $importance")
         notificationService.showNotification(id, title, importance)
-
     }
 }
