@@ -75,11 +75,6 @@ class ListViewModel @Inject constructor(
     }
 
     private fun changeFilterState(isFiltered: Boolean) {
-//        _uiState.update {
-//            _uiState.value.copy(
-//                isFiltered = !it.isFiltered
-//            )
-//        }
         viewModelScope.launch(Dispatchers.IO) {
             dataStoreManager.saveFilterState(!isFiltered)
         }
