@@ -32,6 +32,13 @@ class TodoItemsRepository @Inject constructor(
 
     override suspend fun addItem(todoItem: TodoItem) =
         withContext(Dispatchers.IO) {
+            _todoItems.update { currentList ->
+                val updatedList = currentList.toMutableList()
+                updatedList.add(todoItem)
+                updatedList.toList()
+            }
+            val newTodo = createTodo(todoItem)
+            todoItemDao.insertNewTodoItemData(newTodo.toTodoDbEntity())
             try {
                 val todoItemServer = toTodoItemServer(todoItem)
                 val response = apiService.addTodoItem(
@@ -41,29 +48,12 @@ class TodoItemsRepository @Inject constructor(
             } catch (e: Exception) {
                 updateRevisionNetworkUnavailable()
             }
-            _todoItems.update { currentList ->
-                val updatedList = currentList.toMutableList()
-                updatedList.add(todoItem)
-                updatedList.toList()
-            }
-            val newTodo = createTodo(todoItem)
-            todoItemDao.insertNewTodoItemData(newTodo.toTodoDbEntity())
         }
 
     override suspend fun updateItem(todoItem: TodoItem) =
         withContext(Dispatchers.IO) {
             val containsTodoItem = _todoItems.value.any { it.id == todoItem.id }
             if (containsTodoItem) {
-                try {
-                    val todoItemServer = toTodoItemServer(todoItem)
-                    val response = apiService.updateTodoItem(
-                        revisionDao.getCurrentRevision().toString(),
-                        todoItem.id, todoItemServer
-                    )
-                    updateRevisionNetworkAvailable(response)
-                } catch (e: Exception) {
-                    updateRevisionNetworkUnavailable()
-                }
                 _todoItems.update { currentList ->
                     currentList.map {
                         when (it.id) {
@@ -74,6 +64,16 @@ class TodoItemsRepository @Inject constructor(
                 }
                 val updatedTodo = createTodo(todoItem)
                 todoItemDao.updateTodoData(updatedTodo.toTodoDbEntity())
+                try {
+                    val todoItemServer = toTodoItemServer(todoItem)
+                    val response = apiService.updateTodoItem(
+                        revisionDao.getCurrentRevision().toString(),
+                        todoItem.id, todoItemServer
+                    )
+                    updateRevisionNetworkAvailable(response)
+                } catch (e: Exception) {
+                    updateRevisionNetworkUnavailable()
+                }
             }
         }
 
@@ -81,6 +81,10 @@ class TodoItemsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val containsTodoItem = _todoItems.value.any { it.id == id }
             if (containsTodoItem) {
+                _todoItems.update { currentList ->
+                    currentList.filter { it.id != id }
+                }
+                todoItemDao.deleteTodoDataById(id)
                 try {
                     val response = apiService.deleteTodoItem(
                         revisionDao.getCurrentRevision().toString(), id
@@ -89,10 +93,6 @@ class TodoItemsRepository @Inject constructor(
                 } catch (e: Exception) {
                     updateRevisionNetworkUnavailable()
                 }
-                _todoItems.update { currentList ->
-                    currentList.filter { it.id != id }
-                }
-                todoItemDao.deleteTodoDataById(id)
             }
         }
 
@@ -173,11 +173,11 @@ class TodoItemsRepository @Inject constructor(
 
     override suspend fun reloadData() = loadDataFromServer()
 
-
     override fun errorListLiveData() = errorListLiveData
 
     override fun errorItemLiveData() = errorItemLiveData
 
     override fun numOfCompleted(): Int = _todoItems.value.count { it.isDone }
+
     override fun undoneTodoItems(): List<TodoItem> = _todoItems.value.filter { !it.isDone }
 }
