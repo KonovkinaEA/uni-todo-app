@@ -15,6 +15,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -39,7 +40,7 @@ fun ListScreen(navController: NavHostController) {
     val viewModel: ListViewModel = hiltViewModel()
     val scrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-    val list = viewModel.todoItems.collectAsState().value
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect {
@@ -61,10 +62,10 @@ fun ListScreen(navController: NavHostController) {
             ListTopAppBar(
                 scrollBehavior = scrollBehavior,
                 //doneTasks = TODO viewModel.getDoneTasks(),
-                //isFiltered = TODO uiState.isFiltered(),
+                isFiltered = uiState.isFiltered,
                 onSettingsClick = { navController.navigate(Settings.route) },
-                onVisibilityClick = {
-                    //TODO viewModel.onUiAction(?UpdateData?)
+                onVisibilityClick = { isFiltered ->
+                    viewModel.onUiAction(ListUiAction.ChangeFilter(isFiltered))
                 }
             )
         },
@@ -87,10 +88,12 @@ fun ListScreen(navController: NavHostController) {
                 .padding(paddingValues)
         ) {
             ListToDoes(
-                toDoes = list,
+                toDoes = uiState.todoItems,
                 onItemClick = { todoItem -> viewModel.onUiAction(ListUiAction.EditTodoItem(todoItem)) },
                 onDelete = { todoItem -> viewModel.onUiAction(ListUiAction.RemoveTodoItem(todoItem)) },
-                onUpdate = { todoItem -> viewModel.onUiAction(ListUiAction.UpdateTodoItem(
+                onUpdate = { todoItem ->
+                    viewModel.onUiAction(
+                        ListUiAction.UpdateTodoItem(
                             todoItem.copy(
                                 isDone = !todoItem.isDone
                             )

@@ -36,7 +36,7 @@ fun ListToDoes(
                 elevation = 2.dp,
                 shape = RoundedCornerShape(12.dp),
             )
-            .background(ExtendedTheme.colors.backSecondary)
+            .background(ExtendedTheme.colors.backPrimary)
     ) {
         items(toDoes, key = { it.id }) { todo ->
             ListTodoItem(
