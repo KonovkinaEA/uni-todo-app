@@ -37,7 +37,8 @@ class ListViewModel @Inject constructor(
     ) { state, tasks, userPreferences ->
         state.copy(
             todoItems = filterTasks(tasks, userPreferences.isListFilter),
-            isFiltered = userPreferences.isListFilter
+            isFiltered = userPreferences.isListFilter,
+            countDoneTasks = repository.numOfCompleted()
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ListUiState())
 
@@ -96,5 +97,6 @@ class ListViewModel @Inject constructor(
 
 data class ListUiState(
     val todoItems: List<TodoItem> = emptyList(),
-    val isFiltered: Boolean = false
+    val isFiltered: Boolean = false,
+    val countDoneTasks: Int = 0
 )

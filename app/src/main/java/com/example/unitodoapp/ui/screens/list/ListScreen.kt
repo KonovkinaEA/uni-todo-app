@@ -61,7 +61,7 @@ fun ListScreen(navController: NavHostController) {
         topBar = {
             ListTopAppBar(
                 scrollBehavior = scrollBehavior,
-                //doneTasks = TODO viewModel.getDoneTasks(),
+                doneTasks = uiState.countDoneTasks,
                 isFiltered = uiState.isFiltered,
                 onSettingsClick = { navController.navigate(Settings.route) },
                 onVisibilityClick = { isFiltered ->
