@@ -20,5 +20,9 @@
     <string name="system_theme_system">Match system</string>
     <string name="settings_close_button">Close settings window</string>
     <string name="settings_theme_title">Theme</string>
+    <string name="notifications_disable">App does not have permission for notifications</string>
+    <string name="notif_title">Notifications</string>
+    <string name="importance_for_notif">Importance: </string>
+    <string name="notif_channel_description">Used for notify about ToDo`s deadline</string>
 
 </resources>

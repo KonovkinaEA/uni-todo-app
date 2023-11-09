@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,8 +28,8 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            dataStoreManager.getSettings().collectLatest {
-                _uiState.value = it
+            dataStoreManager.userPreferences.collectLatest {
+                _uiState.value = SettingsState(it.themeMode)
             }
         }
     }
@@ -41,6 +40,8 @@ class SettingsViewModel @Inject constructor(
                 _uiEvent.send(SettingsUiEvent.NavigateUp)
             }
             is SettingsUiAction.UpdateThemeMode -> {
+                _uiState.value = SettingsState(action.themeMode)
+
                 viewModelScope.launch(Dispatchers.IO) {
                     dataStoreManager.saveThemeMode(action.themeMode)
                 }
@@ -49,7 +50,6 @@ class SettingsViewModel @Inject constructor(
     }
 }
 
-@Serializable
 data class SettingsState(
     val themeMode: ThemeMode = ThemeMode.LIGHT
 )

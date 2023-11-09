@@ -2,7 +2,6 @@ package com.example.unitodoapp.data.datastore
 
 import android.util.Log
 import androidx.datastore.core.Serializer
-import com.example.unitodoapp.ui.screens.settings.SettingsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
@@ -10,14 +9,14 @@ import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.OutputStream
 
-object SettingsSerializer : Serializer<SettingsState> {
-    override val defaultValue: SettingsState
-        get() = SettingsState()
+object PreferencesSerializer : Serializer<UserPreferences> {
+    override val defaultValue: UserPreferences
+        get() = UserPreferences()
 
-    override suspend fun readFrom(input: InputStream): SettingsState {
+    override suspend fun readFrom(input: InputStream): UserPreferences {
         return try {
             Json.decodeFromString(
-                deserializer = SettingsState.serializer(),
+                deserializer = UserPreferences.serializer(),
                 string = input.readBytes().decodeToString()
             )
         } catch (e: SerializationException) {
@@ -26,11 +25,11 @@ object SettingsSerializer : Serializer<SettingsState> {
         }
     }
 
-    override suspend fun writeTo(t: SettingsState, output: OutputStream) {
+    override suspend fun writeTo(t: UserPreferences, output: OutputStream) {
         withContext(Dispatchers.IO) {
             output.write(
                 Json.encodeToString(
-                    serializer = SettingsState.serializer(),
+                    serializer = UserPreferences.serializer(),
                     value = t
                 ).encodeToByteArray()
             )

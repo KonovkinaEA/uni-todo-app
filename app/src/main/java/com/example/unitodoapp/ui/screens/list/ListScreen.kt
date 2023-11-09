@@ -15,6 +15,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -38,15 +39,19 @@ import com.example.unitodoapp.ui.theme.White
 fun ListScreen(navController: NavHostController) {
     val viewModel: ListViewModel = hiltViewModel()
     val scrollBehavior =
-            TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-    val list = viewModel.todoItems.collectAsState().value
+        TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect {
             when (it) {
                 ListUiEvent.NavigateToNewTodoItem -> navController.navigate(Edit.route)
                 ListUiEvent.NavigateToSettings -> navController.navigate(Settings.route)
-                is ListUiEvent.NavigateToEditTodoItem -> navController.navigate(Edit.navToOrderWithArgs(it.id))
+                is ListUiEvent.NavigateToEditTodoItem -> navController.navigate(
+                    Edit.navToOrderWithArgs(
+                        it.id
+                    )
+                )
             }
         }
     }
@@ -56,11 +61,11 @@ fun ListScreen(navController: NavHostController) {
         topBar = {
             ListTopAppBar(
                 scrollBehavior = scrollBehavior,
-                //doneTasks = TODO viewModel.getDoneTasks(),
-                //isFiltered = TODO uiState.isFiltered(),
+                doneTasks = uiState.countDoneTasks,
+                isFiltered = uiState.isFiltered,
                 onSettingsClick = { navController.navigate(Settings.route) },
-                onVisibilityClick = {
-                    //TODO viewModel.onUiAction(?UpdateData?)
+                onVisibilityClick = { isFiltered ->
+                    viewModel.onUiAction(ListUiAction.ChangeFilter(isFiltered))
                 }
             )
         },
@@ -83,9 +88,18 @@ fun ListScreen(navController: NavHostController) {
                 .padding(paddingValues)
         ) {
             ListToDoes(
-                toDoes = list,
-                onCheckboxClick = { viewModel.onUiAction(ListUiAction.UpdateTodoItem(it)) },
-                onItemClick = { viewModel.onUiAction(ListUiAction.EditTodoItem(it)) }
+                toDoes = uiState.todoItems,
+                onItemClick = { todoItem -> viewModel.onUiAction(ListUiAction.EditTodoItem(todoItem)) },
+                onDelete = { todoItem -> viewModel.onUiAction(ListUiAction.RemoveTodoItem(todoItem)) },
+                onUpdate = { todoItem ->
+                    viewModel.onUiAction(
+                        ListUiAction.UpdateTodoItem(
+                            todoItem.copy(
+                                isDone = !todoItem.isDone
+                            )
+                        )
+                    )
+                }
             )
         }
     }

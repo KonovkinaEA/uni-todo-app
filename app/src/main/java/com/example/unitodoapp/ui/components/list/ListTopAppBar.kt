@@ -23,10 +23,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -48,7 +44,7 @@ fun ListTopAppBar(
     isFiltered: Boolean = false,
     scrollBehavior: TopAppBarScrollBehavior,
     onSettingsClick: () -> Unit = {},
-    onVisibilityClick: () -> Unit = {}
+    onVisibilityClick: (Boolean) -> Unit = {}
 ) {
     val collapsed = scrollBehavior.state.collapsedFraction
 
@@ -91,7 +87,7 @@ fun ListTopAppBar(
                             ),
                         isFiltered
                     ) {
-                        onVisibilityClick()
+                        onVisibilityClick(isFiltered)
                     }
             }
 
@@ -99,7 +95,7 @@ fun ListTopAppBar(
         actions = {
             if (collapsed > 0.62f)
                 VisibilityIcon(isFiltered = isFiltered) {
-                    onVisibilityClick()
+                    onVisibilityClick(isFiltered)
                 }
         },
         navigationIcon = {
@@ -128,18 +124,9 @@ fun VisibilityIcon(
     isFiltered: Boolean = false,
     onClick: () -> Unit
 ) {
-    var imageState by remember {
-        mutableStateOf(R.drawable.visibility)
-    }
     IconButton(
         onClick = {
             onClick()
-            imageState =
-                if (isFiltered)
-                    R.drawable.visibility_off
-                else
-                    R.drawable.visibility
-
         },
         colors = IconButtonDefaults.iconButtonColors(
             contentColor = Blue
@@ -147,7 +134,12 @@ fun VisibilityIcon(
         modifier = modifier
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.visibility),
+            painter = painterResource(
+                id = if (isFiltered)
+                    R.drawable.visibility_off
+                else
+                    R.drawable.visibility
+            ),
             contentDescription = "Filter done tasks"
         )
     }
@@ -175,7 +167,7 @@ fun PreviewListTopAppBar() {
                     .padding(it)
             ) {
                 items(toDoList) { item ->
-                    ListToDoItem(
+                    ListToDoItemCard(
                         todo = item,
                         onCheckboxClick = {},
                         onItemClick = {}
