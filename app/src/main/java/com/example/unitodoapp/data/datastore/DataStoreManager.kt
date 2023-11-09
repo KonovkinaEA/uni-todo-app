@@ -7,23 +7,29 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private val Context.protoDataStore by dataStore("settings.json", SettingsSerializer)
+private val Context.protoDataStore by dataStore("settings.json", PreferencesSerializer)
 
 @Singleton
 class DataStoreManager @Inject constructor(@ApplicationContext appContext: Context) {
-    private val settingsDataStore = appContext.protoDataStore
+    private val preferencesDataStore = appContext.protoDataStore
+    val userPreferences = preferencesDataStore.data
 
     suspend fun saveThemeMode(themeMode: ThemeMode) {
-        settingsDataStore.updateData { settings ->
-            settings.copy(themeMode = themeMode)
+        preferencesDataStore.updateData { userPreferences ->
+            userPreferences.copy(themeMode = themeMode)
         }
     }
 
     suspend fun saveNotificationsPermission(notifyPermissionGranted: Boolean) {
-        settingsDataStore.updateData { settings ->
-            settings.copy(notifyPermissionGranted = notifyPermissionGranted)
+        preferencesDataStore.updateData { userPreferences ->
+            userPreferences.copy(notifyPermissionGranted = notifyPermissionGranted)
         }
     }
 
-    fun getSettings() = settingsDataStore.data
+    suspend fun saveFilterState(isFiltered: Boolean) {
+        preferencesDataStore.updateData { userPreferences ->
+            userPreferences.copy(isListFilter = isFiltered)
+        }
+    }
+
 }

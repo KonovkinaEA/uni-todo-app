@@ -18,9 +18,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.unitodoapp.data.datastore.DataStoreManager
+import com.example.unitodoapp.data.datastore.UserPreferences
 import com.example.unitodoapp.data.workmanager.CustomWorkManager
 import com.example.unitodoapp.ui.navigation.AppNavHost
-import com.example.unitodoapp.ui.screens.settings.SettingsState
 import com.example.unitodoapp.ui.screens.settings.model.ThemeMode
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,10 +43,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val settings = dataStoreManager.getSettings().collectAsState(initial = SettingsState())
+            val pref = dataStoreManager.userPreferences.collectAsState(initial = UserPreferences())
 
             TodoAppTheme(
-                darkTheme = when (settings.value.themeMode) {
+                darkTheme = when (pref.value.themeMode) {
                     ThemeMode.LIGHT -> false
                     ThemeMode.DARK -> true
                     else -> isSystemInDarkTheme()
