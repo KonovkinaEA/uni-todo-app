@@ -15,7 +15,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import com.example.unitodoapp.ui.components.list.VisibilityIcon
+import com.example.unitodoapp.ui.components.VisibilityIcon
 import com.example.unitodoapp.ui.theme.Blue
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.ThemeModePreview
@@ -23,23 +23,24 @@ import com.example.unitodoapp.ui.theme.TodoAppTheme
 
 @Composable
 fun RegistrationTextField(
-    text: String,
+    value: String,
     labelText: String,
     isPassword: Boolean = false,
     isPassVisible: Boolean = false,
-    onValueChange: () -> Unit = {},
+    onValueChange: (String) -> Unit = {},
     onVisibilityClick: () -> Unit = {}
 ) {
 
     OutlinedTextField(
-        value = text,
-        onValueChange = { onValueChange() },
+        value = value,
+        onValueChange = { onValueChange(it) },
         label = {
             Text(text = labelText, color = ExtendedTheme.colors.labelSecondary)
         },
-        visualTransformation = if (isPassword) PasswordVisualTransformation()
+        visualTransformation = if (isPassword && !isPassVisible)
+            PasswordVisualTransformation()
         else VisualTransformation.None,
-        keyboardOptions = if (isPassword)
+        keyboardOptions = if (isPassword && !isPassVisible)
             KeyboardOptions(keyboardType = KeyboardType.Password)
         else
             KeyboardOptions.Default,
