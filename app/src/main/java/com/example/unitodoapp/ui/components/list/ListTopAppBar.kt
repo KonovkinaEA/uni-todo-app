@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,13 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.unitodoapp.R
-import com.example.unitodoapp.ui.theme.Blue
+import com.example.unitodoapp.ui.components.VisibilityIcon
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 import com.example.unitodoapp.utils.toDoList
@@ -94,7 +92,7 @@ fun ListTopAppBar(
         },
         actions = {
             if (collapsed > 0.62f)
-                VisibilityIcon(isFiltered = isFiltered) {
+                VisibilityIcon(isVisibleOff = isFiltered) {
                     onVisibilityClick(isFiltered)
                 }
         },
@@ -116,33 +114,6 @@ fun ListTopAppBar(
             )
     )
 
-}
-
-@Composable
-fun VisibilityIcon(
-    modifier: Modifier = Modifier,
-    isFiltered: Boolean = false,
-    onClick: () -> Unit
-) {
-    IconButton(
-        onClick = {
-            onClick()
-        },
-        colors = IconButtonDefaults.iconButtonColors(
-            contentColor = Blue
-        ),
-        modifier = modifier
-    ) {
-        Icon(
-            painter = painterResource(
-                id = if (isFiltered)
-                    R.drawable.visibility_off
-                else
-                    R.drawable.visibility
-            ),
-            contentDescription = "Filter done tasks"
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
