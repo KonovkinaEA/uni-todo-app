@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import com.example.unitodoapp.ui.components.list.VisibilityIcon
 import com.example.unitodoapp.ui.theme.Blue
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.ThemeModePreview
@@ -25,11 +26,14 @@ fun RegistrationTextField(
     text: String,
     labelText: String,
     isPassword: Boolean = false,
-    onValueChange: () -> Unit
+    isPassVisible: Boolean = false,
+    onValueChange: () -> Unit = {},
+    onVisibilityClick: () -> Unit = {}
 ) {
+
     OutlinedTextField(
         value = text,
-        onValueChange = { },
+        onValueChange = { onValueChange() },
         label = {
             Text(text = labelText, color = ExtendedTheme.colors.labelSecondary)
         },
@@ -43,7 +47,15 @@ fun RegistrationTextField(
             focusedContainerColor = ExtendedTheme.colors.backElevated,
             unfocusedContainerColor = ExtendedTheme.colors.backElevated,
             focusedBorderColor = Blue
-        )
+        ),
+        trailingIcon = {
+            if (isPassword)
+                VisibilityIcon(
+                    isVisibleOff = isPassVisible,
+                    onClick = { onVisibilityClick() },
+                    color = ExtendedTheme.colors.labelSecondary
+                )
+        }
     )
 }
 
@@ -56,7 +68,7 @@ fun PreviewRegistrationTextField(
 
         Box(Modifier.background(ExtendedTheme.colors.backPrimary)) {
             Box(Modifier.padding(10.dp)) {
-                RegistrationTextField("", "enter something") {}
+                RegistrationTextField("", "enter something")
             }
         }
     }

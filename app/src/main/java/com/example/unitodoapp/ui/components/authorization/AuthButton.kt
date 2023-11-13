@@ -14,7 +14,7 @@ import com.example.unitodoapp.ui.theme.Blue
 import com.example.unitodoapp.ui.theme.White
 
 @Composable
-fun AuthorizationButton(
+fun AuthButton(
     text: String,
     containerColor: Color = White,
     contentColor: Color = Blue,

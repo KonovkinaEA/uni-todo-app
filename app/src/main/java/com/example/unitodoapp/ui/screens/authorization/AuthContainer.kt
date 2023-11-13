@@ -3,22 +3,23 @@ package com.example.unitodoapp.ui.screens.authorization
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.unitodoapp.ui.components.authorization.AuthorizationButton
-import com.example.unitodoapp.ui.components.authorization.RegistrationTextField
+import com.example.unitodoapp.ui.components.authorization.AuthButton
 import com.example.unitodoapp.ui.theme.Blue
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.ThemeModePreview
@@ -26,8 +27,14 @@ import com.example.unitodoapp.ui.theme.TodoAppTheme
 import com.example.unitodoapp.ui.theme.White
 
 @Composable
-fun RegistrationScreen(
-    navController: NavHostController
+fun AuthContainer(
+    screenType: Screen,
+    buttonText: String,
+    onButtonClick: () -> Unit,
+    onSecondButtonClick: () -> Unit = {},
+    bottomSuggestText: String,
+    onBottomTextClick: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.Bottom,
@@ -43,64 +50,57 @@ fun RegistrationScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Create Account",
-                fontSize = 24.sp,
-                color = ExtendedTheme.colors.labelPrimary,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
+            content()
+        }
+        AuthButton(
+            text = buttonText,
+            onClick = {
+                onButtonClick()
+                      },
+            contentColor = White,
+            containerColor = Blue
+        )
+        if (screenType == Screen.WELCOME) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-            RegistrationTextField(
-                text = "",
-                labelText = "Enter login",
-                onValueChange = { }
-            )
-
-            RegistrationTextField(
-                text = "some password",
-                labelText = "Enter password",
-                isPassword = true,
-                onValueChange = { }
-            )
-
-            RegistrationTextField(
-                text = "some password",
-                labelText = "Confirm password",
-                isPassword = true,
-                onValueChange = { }
+            AuthButton(
+                text = "Login",
+                containerColor = White,
+                onClick = { onSecondButtonClick() }
             )
         }
 
-
-
-
-
-        AuthorizationButton(
-            text = "Create Account",
-            contentColor = White,
-            containerColor = Blue,
-            onClick = { }
-        )
-
         TextButton(
-            onClick = { }
+            onClick = {
+                onBottomTextClick()
+            }
         ) {
             Text(
-                modifier = Modifier,
-                text = "Already have an account? Sign in",
+                text = bottomSuggestText,
+                modifier = Modifier.fillMaxWidth(),
                 color = ExtendedTheme.colors.labelTertiary,
+                textAlign = TextAlign.Center,
                 textDecoration = TextDecoration.Underline
             )
         }
     }
+
 }
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 720)
 @Composable
-fun PreviewRegistration(
+fun PreviewAuthorizationHostStart(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
-        RegistrationScreen(rememberNavController())
+        AuthContainer(
+            Screen.WELCOME,
+            "Button text",
+            {},
+            bottomSuggestText = "bottomSuggestText",
+            onBottomTextClick = {}
+        ) {
+
+        }
     }
 }
