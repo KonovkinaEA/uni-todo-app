@@ -15,9 +15,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.unitodoapp.ui.components.VisibilityIcon
 import com.example.unitodoapp.ui.theme.Blue
 import com.example.unitodoapp.ui.theme.ExtendedTheme
+import com.example.unitodoapp.ui.theme.Red
 import com.example.unitodoapp.ui.theme.ThemeModePreview
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 
@@ -25,29 +27,37 @@ import com.example.unitodoapp.ui.theme.TodoAppTheme
 fun RegistrationTextField(
     value: String,
     labelText: String,
+    isValid: Boolean = true,
+    invalidMassage: String = "",
     isPassword: Boolean = false,
     isPassVisible: Boolean = false,
     onValueChange: (String) -> Unit = {},
     onVisibilityClick: () -> Unit = {}
 ) {
+    
+    val labelColor = if (isValid)
+        ExtendedTheme.colors.labelSecondary
+    else
+        Red
 
     OutlinedTextField(
         value = value,
         onValueChange = { onValueChange(it) },
         label = {
-            Text(text = labelText, color = ExtendedTheme.colors.labelSecondary)
+            Text(text = labelText, color = labelColor)
         },
         visualTransformation = if (isPassword && !isPassVisible)
             PasswordVisualTransformation()
         else VisualTransformation.None,
-        keyboardOptions = if (isPassword && !isPassVisible)
+        keyboardOptions = if (isPassword)
             KeyboardOptions(keyboardType = KeyboardType.Password)
         else
             KeyboardOptions.Default,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = ExtendedTheme.colors.backElevated,
             unfocusedContainerColor = ExtendedTheme.colors.backElevated,
-            focusedBorderColor = Blue
+            focusedBorderColor = Blue,
+            unfocusedBorderColor = labelColor
         ),
         trailingIcon = {
             if (isPassword)
@@ -56,13 +66,23 @@ fun RegistrationTextField(
                     onClick = { onVisibilityClick() },
                     color = ExtendedTheme.colors.labelSecondary
                 )
+        },
+        singleLine = true,
+        supportingText = {
+            if (!isValid) {
+                Text(
+                    text = invalidMassage,
+                    color = Red,
+                    fontSize = 16.sp,
+                )
+            }
         }
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewRegistrationTextField(
+fun PreviewEmptyRegistrationTextField(
     @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
 ) {
     TodoAppTheme(darkTheme = darkTheme) {
@@ -70,6 +90,40 @@ fun PreviewRegistrationTextField(
         Box(Modifier.background(ExtendedTheme.colors.backPrimary)) {
             Box(Modifier.padding(10.dp)) {
                 RegistrationTextField("", "enter something")
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewValidRegistrationTextField(
+    @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
+) {
+    TodoAppTheme(darkTheme = darkTheme) {
+
+        Box(Modifier.background(ExtendedTheme.colors.backPrimary)) {
+            Box(Modifier.padding(10.dp)) {
+                RegistrationTextField("testLogin", "enter login")
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewInvalidRegistrationTextField(
+    @PreviewParameter(ThemeModePreview::class) darkTheme: Boolean
+) {
+    TodoAppTheme(darkTheme = darkTheme) {
+
+        Box(Modifier.background(ExtendedTheme.colors.backPrimary)) {
+            Box(Modifier.padding(10.dp)) {
+                RegistrationTextField(
+                    "invalidLogin",
+                    "enter login",
+                    false,
+                    "incorrect")
             }
         }
     }
