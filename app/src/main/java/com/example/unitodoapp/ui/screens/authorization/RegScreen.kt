@@ -74,6 +74,8 @@ fun RegScreen(
         RegistrationTextField(
             value = uiState.login,
             labelText = "Enter login",
+            isValid = uiState.isLoginValid,
+            invalidMassage = uiState.errorMassage,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateLogin(text))
             }

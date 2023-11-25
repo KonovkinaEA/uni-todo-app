@@ -5,6 +5,12 @@ const val MS_IN_S = 1000
 const val NOTIFICATION_PERMISSION_KEY = "notification_permission"
 const val NOTIFICATION_ON = "notification_on"
 
+const val MIN_LOGIN_LEN = 6
+const val MAX_LOGIN_LEN = 20
+
+const val MIN_PASS_LEN = 6
+const val MAX_PASS_LEN = 20
+
 const val IMPORTANCE_IMPORTANT_ID = 3
 const val IMPORTANCE_BASIC_ID = 2
 const val IMPORTANCE_LOW_ID = 1

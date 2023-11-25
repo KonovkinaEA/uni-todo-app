@@ -8,6 +8,8 @@ import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldTy
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.PASS
 import com.example.unitodoapp.ui.screens.authorization.actions.AuthUiAction
 import com.example.unitodoapp.ui.screens.authorization.actions.AuthUiEvent
+import com.example.unitodoapp.utils.MAX_LOGIN_LEN
+import com.example.unitodoapp.utils.MIN_LOGIN_LEN
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,7 +87,12 @@ class AuthViewModel @Inject constructor(
     private fun updateTextField(value: String, type: TextFieldType) {
         _uiState.update {
             when (type) {
-                LOG -> uiState.value.copy(login = value)
+                LOG -> uiState.value.copy(
+                    login = value,
+                    isLoginValid = true,
+                    errorMassage = "",
+                )
+
                 PASS -> uiState.value.copy(password = value)
                 CONF -> uiState.value.copy(confPassword = value)
             }
@@ -93,15 +100,31 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun registerNewUser(user: User) {
+        var isRegistrationSuccess: Boolean
+
+        if (loginValidation(user.login))
+            isRegistrationSuccess = true
+        else {
+            isRegistrationSuccess = false
+            _uiState.update {
+                uiState.value.copy(
+                    isLoginValid = false,
+                    errorMassage = "Invalid login. Use $MIN_LOGIN_LEN-$MAX_LOGIN_LEN characters with only letters (a-z), digits, and '_'."
+                )
+            }
+        }
 
         //some network work
-        val isRegistrationSuccess = true
         if (isRegistrationSuccess) {
             viewModelScope.launch {
                 _uiEvent.send(AuthUiEvent.NavigateToLog)
             }
         }
     }
+
+
+    private fun loginValidation(login: String): Boolean =
+        login.matches("^[a-zA-Z\\d_]{$MIN_LOGIN_LEN,$MAX_LOGIN_LEN}\$".toRegex())
 
     enum class TextFieldType { LOG, PASS, CONF }
 
@@ -110,10 +133,13 @@ class AuthViewModel @Inject constructor(
 data class AuthUiState(
     val screen: Screen = Screen.WELCOME,
     val login: String = "",
+    val isLoginValid: Boolean = true,
     val password: String = "",
+    val isPassValid: Boolean = true,
     val isPassVisible: Boolean = false,
     val confPassword: String = "",
-    val isPassConfVisible: Boolean = false
+    val isPassConfVisible: Boolean = false,
+    val errorMassage: String = ""
 )
 
 enum class Screen { WELCOME, REG, LOGIN, PASSREC }
