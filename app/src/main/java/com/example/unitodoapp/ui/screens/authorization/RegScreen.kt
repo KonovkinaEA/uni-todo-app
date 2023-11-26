@@ -75,7 +75,7 @@ fun RegScreen(
             value = uiState.login,
             labelText = "Enter login",
             isValid = uiState.isLoginValid,
-            invalidMassage = uiState.errorMassage,
+            invalidMassage = uiState.loginErrorMassage,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateLogin(text))
             }
@@ -84,6 +84,8 @@ fun RegScreen(
         RegistrationTextField(
             value = uiState.password,
             labelText = "Enter password",
+            isValid = uiState.isPassValid,
+            invalidMassage = uiState.passErrorMassage,
             isPassword = true,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdatePass(text))
@@ -97,6 +99,8 @@ fun RegScreen(
         RegistrationTextField(
             value = uiState.confPassword,
             labelText = "Confirm password",
+            isValid = (uiState.password == uiState.confPassword),
+            invalidMassage = "passwords don't match",
             isPassword = true,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateConfirmPass(text))

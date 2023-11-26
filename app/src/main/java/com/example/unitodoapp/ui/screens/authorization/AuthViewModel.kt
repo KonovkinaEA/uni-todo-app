@@ -9,7 +9,9 @@ import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldTy
 import com.example.unitodoapp.ui.screens.authorization.actions.AuthUiAction
 import com.example.unitodoapp.ui.screens.authorization.actions.AuthUiEvent
 import com.example.unitodoapp.utils.MAX_LOGIN_LEN
+import com.example.unitodoapp.utils.MAX_PASS_LEN
 import com.example.unitodoapp.utils.MIN_LOGIN_LEN
+import com.example.unitodoapp.utils.MIN_PASS_LEN
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,26 +92,38 @@ class AuthViewModel @Inject constructor(
                 LOG -> uiState.value.copy(
                     login = value,
                     isLoginValid = true,
-                    errorMassage = "",
+                    loginErrorMassage = "",
                 )
 
-                PASS -> uiState.value.copy(password = value)
+                PASS -> uiState.value.copy(
+                    password = value,
+                    isPassValid = true,
+                    passErrorMassage = "",
+                )
                 CONF -> uiState.value.copy(confPassword = value)
             }
         }
     }
 
     private fun registerNewUser(user: User) {
-        var isRegistrationSuccess: Boolean
+        var isRegistrationSuccess: Boolean = true
 
-        if (loginValidation(user.login))
-            isRegistrationSuccess = true
-        else {
+        if (!loginValidation(user.login)) {
             isRegistrationSuccess = false
             _uiState.update {
                 uiState.value.copy(
                     isLoginValid = false,
-                    errorMassage = "Invalid login. Use $MIN_LOGIN_LEN-$MAX_LOGIN_LEN characters with only letters (a-z), digits, and '_'."
+                    loginErrorMassage = "Invalid login. Use $MIN_LOGIN_LEN-$MAX_LOGIN_LEN characters with only letters (a-z), digits, and '_'."
+                )
+            }
+        }
+
+        if (!passValidation(user.password)) {
+            isRegistrationSuccess = false
+            _uiState.update {
+                uiState.value.copy(
+                    isPassValid = false,
+                    passErrorMassage = "Invalid password. Use $MIN_LOGIN_LEN-$MAX_LOGIN_LEN characters with only letters (a-z), digits, and '_', '-'"
                 )
             }
         }
@@ -122,6 +136,9 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    private fun passValidation(password: String): Boolean =
+        password.matches("^[a-zA-Z\\d_-]{${MIN_PASS_LEN},$MAX_PASS_LEN}\$".toRegex())
+
 
     private fun loginValidation(login: String): Boolean =
         login.matches("^[a-zA-Z\\d_]{$MIN_LOGIN_LEN,$MAX_LOGIN_LEN}\$".toRegex())
@@ -132,14 +149,19 @@ class AuthViewModel @Inject constructor(
 
 data class AuthUiState(
     val screen: Screen = Screen.WELCOME,
+
     val login: String = "",
     val isLoginValid: Boolean = true,
+    val loginErrorMassage: String = "",
+
     val password: String = "",
     val isPassValid: Boolean = true,
     val isPassVisible: Boolean = false,
+    val passErrorMassage: String = "",
+
     val confPassword: String = "",
     val isPassConfVisible: Boolean = false,
-    val errorMassage: String = ""
+    val confPassErrorMassage: String = ""
 )
 
 enum class Screen { WELCOME, REG, LOGIN, PASSREC }
