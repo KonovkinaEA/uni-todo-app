@@ -59,9 +59,27 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun logInUser(user: User) {
-        var isUserValid = true
-        // network check that user valid
-        if (isUserValid) {
+
+        var isUserExist = true
+        //todo network check that user exist
+        var isLoginSuccess = true
+        //todo network check that pass correct
+
+        if (!isUserExist) { // login doesn't exist in system
+            _uiState.update {
+                uiState.value.copy(
+                    isLoginValid = false,
+                    loginErrorMassage = "There is no user with such login"
+                )
+            }
+        } else if (!isLoginSuccess) {
+            _uiState.update {
+                uiState.value.copy(
+                    isPassValid = false,
+                    passErrorMassage = "Incorrect login or password"
+                )
+            }
+        } else {
             viewModelScope.launch {
                 _uiEvent.send(AuthUiEvent.NavigateToList)
             }
@@ -100,16 +118,17 @@ class AuthViewModel @Inject constructor(
                     isPassValid = true,
                     passErrorMassage = "",
                 )
+
                 CONF -> uiState.value.copy(confPassword = value)
             }
         }
     }
 
     private fun registerNewUser(user: User) {
-        var isRegistrationSuccess: Boolean = true
+        var isValidationPassed: Boolean = true
 
-        if (!loginValidation(user.login)) {
-            isRegistrationSuccess = false
+        if (!isLoginValid(user.login)) {
+            isValidationPassed = false
             _uiState.update {
                 uiState.value.copy(
                     isLoginValid = false,
@@ -118,8 +137,8 @@ class AuthViewModel @Inject constructor(
             }
         }
 
-        if (!passValidation(user.password)) {
-            isRegistrationSuccess = false
+        if (!isPassValid(user.password)) {
+            isValidationPassed = false
             _uiState.update {
                 uiState.value.copy(
                     isPassValid = false,
@@ -128,19 +147,30 @@ class AuthViewModel @Inject constructor(
             }
         }
 
-        //some network work
-        if (isRegistrationSuccess) {
-            viewModelScope.launch {
-                _uiEvent.send(AuthUiEvent.NavigateToLog)
+        if (isValidationPassed) {
+
+            //todo network work
+
+            if (true) {// login doesn't occupied
+                viewModelScope.launch {
+                    _uiEvent.send(AuthUiEvent.NavigateToLog)
+                }
+            } else {
+                _uiState.update {
+                    uiState.value.copy(
+                        isLoginValid = false,
+                        loginErrorMassage = "This login is already occupied."
+                    )
+                }
             }
         }
     }
 
-    private fun passValidation(password: String): Boolean =
+    private fun isPassValid(password: String): Boolean =
         password.matches("^[a-zA-Z\\d_-]{${MIN_PASS_LEN},$MAX_PASS_LEN}\$".toRegex())
 
 
-    private fun loginValidation(login: String): Boolean =
+    private fun isLoginValid(login: String): Boolean =
         login.matches("^[a-zA-Z\\d_]{$MIN_LOGIN_LEN,$MAX_LOGIN_LEN}\$".toRegex())
 
     enum class TextFieldType { LOG, PASS, CONF }

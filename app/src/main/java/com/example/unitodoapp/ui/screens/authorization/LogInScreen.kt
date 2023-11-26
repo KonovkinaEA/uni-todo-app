@@ -79,6 +79,8 @@ fun LogInScreen(
         RegistrationTextField(
             value = uiState.login,
             labelText = "Enter login",
+            isValid = uiState.isLoginValid,
+            invalidMassage = uiState.loginErrorMassage,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateLogin(text))
             }
