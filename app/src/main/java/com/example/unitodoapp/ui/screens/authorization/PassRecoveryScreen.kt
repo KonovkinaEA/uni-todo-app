@@ -78,6 +78,8 @@ fun PassRecoveryScreen(
         RegistrationTextField(
             value = uiState.login,
             labelText = "Enter login",
+            isValid = uiState.isLoginValid,
+            invalidMassage = uiState.loginErrorMassage,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateLogin(text))
             }
@@ -86,6 +88,8 @@ fun PassRecoveryScreen(
         RegistrationTextField(
             value = uiState.password,
             labelText = "Enter new password",
+            isValid = uiState.isPassValid,
+            invalidMassage = uiState.passErrorMassage,
             isPassword = true,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdatePass(text))
@@ -99,6 +103,8 @@ fun PassRecoveryScreen(
         RegistrationTextField(
             value = uiState.confPassword,
             labelText = "Confirm new password",
+            isValid = (uiState.password == uiState.confPassword),
+            invalidMassage = "passwords doesn't match",
             isPassword = true,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateConfirmPass(text))

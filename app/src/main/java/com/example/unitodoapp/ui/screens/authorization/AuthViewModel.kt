@@ -47,11 +47,37 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun passUpdateForUser(user: User) {
-        var isPassUpdateSuccess = true
+        var isUserExist = true
+        //todo network check that user exist
 
-        //network check and update pass
+        var isValidationPassed = true
 
-        if (isPassUpdateSuccess) {
+        if (!isUserExist) { // login doesn't exist in system
+            _uiState.update {
+                uiState.value.copy(
+                    isLoginValid = false,
+                    loginErrorMassage = "There is no user with such login"
+                )
+            }
+            isValidationPassed = false
+        }
+
+        if (!isPassValid(user.password)) {
+            isValidationPassed = false
+            _uiState.update {
+                uiState.value.copy(
+                    isPassValid = false,
+                    passErrorMassage = "Invalid password. Use $MIN_LOGIN_LEN-$MAX_LOGIN_LEN characters with only letters (a-z), digits, and '_', '-'"
+                )
+            }
+        }
+
+        if (uiState.value.password != uiState.value.confPassword)
+            isValidationPassed = false
+
+
+        if (isValidationPassed) {
+            //todo network pass recover
             viewModelScope.launch {
                 _uiEvent.send(AuthUiEvent.NavigateToLog)
             }
@@ -146,6 +172,9 @@ class AuthViewModel @Inject constructor(
                 )
             }
         }
+
+        if (uiState.value.password != uiState.value.confPassword)
+            isValidationPassed = false
 
         if (isValidationPassed) {
 
