@@ -4,7 +4,7 @@ import com.example.unitodoapp.data.model.User
 
 sealed class AuthUiAction {
     data class RegisterNewUser(val user: User) : AuthUiAction()
-    data class UpdateLogin(val login: String) : AuthUiAction()
+    data class UpdateLogin(val email: String) : AuthUiAction()
     data class UpdatePass(val pass: String) : AuthUiAction()
     data class UpdateConfirmPass(val confPass: String) : AuthUiAction()
     object UpdatePassVisibility : AuthUiAction()

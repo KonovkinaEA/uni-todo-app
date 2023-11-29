@@ -53,7 +53,7 @@ fun RegScreen(
             viewModel.onUiAction(
                 AuthUiAction.RegisterNewUser(
                     User(
-                        login = uiState.login,
+                        email = uiState.email,
                         password = uiState.password
                     )
                 )
@@ -72,10 +72,10 @@ fun RegScreen(
         )
 
         RegistrationTextField(
-            value = uiState.login,
-            labelText = "Enter login",
-            isValid = uiState.isLoginValid,
-            invalidMassage = uiState.loginErrorMassage,
+            value = uiState.email,
+            labelText = "Enter email",
+            isValid = uiState.isEmailValid,
+            invalidMassage = uiState.emailErrorMassage,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateLogin(text))
             }
