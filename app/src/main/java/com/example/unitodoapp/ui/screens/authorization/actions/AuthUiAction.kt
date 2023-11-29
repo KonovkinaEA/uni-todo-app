@@ -11,5 +11,6 @@ sealed class AuthUiAction {
     object UpdateConfPassVisibility : AuthUiAction()
     data class LogInUser(val user: User) : AuthUiAction()
     data class UpdatePassForUser(val user: User) : AuthUiAction()
+    data class UpdateRemUserCheckbox(val isCheck: Boolean) : AuthUiAction()
 
 }

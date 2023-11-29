@@ -2,6 +2,7 @@ package com.example.unitodoapp.data.datastore
 
 import android.content.Context
 import androidx.datastore.dataStore
+import com.example.unitodoapp.data.model.User
 import com.example.unitodoapp.ui.screens.settings.model.ThemeMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -29,6 +30,24 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
     suspend fun saveFilterState(isFiltered: Boolean) {
         preferencesDataStore.updateData { userPreferences ->
             userPreferences.copy(isListFilter = isFiltered)
+        }
+    }
+
+    suspend fun saveUser(user: User) {
+        preferencesDataStore.updateData { userPreferences ->
+            userPreferences.copy(
+                email = user.email,
+                password = user.password
+            )
+        }
+    }
+
+    suspend fun logOutUser() {
+        preferencesDataStore.updateData { userPreferences ->
+            userPreferences.copy(
+                email = null,
+                password = null
+            )
         }
     }
 

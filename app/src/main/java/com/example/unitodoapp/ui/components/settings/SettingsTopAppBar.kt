@@ -2,10 +2,11 @@ package com.example.unitodoapp.ui.components.settings
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,8 +25,12 @@ import com.example.unitodoapp.ui.theme.TodoAppTheme
 fun SettingsTopAppBar(
     uiAction: (SettingsUiAction) -> Unit
 ) {
-    TopAppBar(
-        title = {},
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = stringResource(id = R.string.settings_title)
+            )
+        },
         navigationIcon = {
             IconButton(
                 onClick = { uiAction(SettingsUiAction.NavigateUp) },

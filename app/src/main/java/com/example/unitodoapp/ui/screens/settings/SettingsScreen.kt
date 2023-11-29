@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.unitodoapp.data.navigation.List
+import com.example.unitodoapp.data.navigation.LogIn
+import com.example.unitodoapp.ui.components.settings.ProfileCard
 import com.example.unitodoapp.ui.components.settings.SettingsTopAppBar
 import com.example.unitodoapp.ui.components.settings.ThemePicker
 import com.example.unitodoapp.ui.screens.settings.actions.SettingsUiEvent
@@ -29,6 +31,10 @@ fun SettingsScreen(navController: NavHostController) {
             when (it) {
                 SettingsUiEvent.NavigateUp -> {
                     navController.navigate(List.route) { popUpTo(List.route) { inclusive = true } }
+                }
+
+                SettingsUiEvent.NavigateToLogIn -> {
+                    navController.navigate(LogIn.route) { popUpTo(LogIn.route) { inclusive = true } }
                 }
             }
         }
@@ -46,6 +52,11 @@ fun SettingsScreen(navController: NavHostController) {
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
         ) {
+
+            ProfileCard(
+                uiState = uiState,
+                onUiAction = viewModel :: onUiAction
+            )
             ThemePicker(
                 themeMode = uiState.themeMode,
                 uiAction = viewModel::onUiAction

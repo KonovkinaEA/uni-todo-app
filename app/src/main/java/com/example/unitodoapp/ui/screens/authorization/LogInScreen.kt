@@ -21,6 +21,7 @@ import com.example.unitodoapp.data.navigation.List
 import com.example.unitodoapp.data.navigation.LogIn
 import com.example.unitodoapp.data.navigation.Reg
 import com.example.unitodoapp.ui.components.authorization.RegistrationTextField
+import com.example.unitodoapp.ui.components.authorization.RememberUserCheckbox
 import com.example.unitodoapp.ui.screens.authorization.actions.AuthUiAction
 import com.example.unitodoapp.ui.screens.authorization.actions.AuthUiEvent
 import com.example.unitodoapp.ui.theme.ExtendedTheme
@@ -100,6 +101,15 @@ fun LogInScreen(
                 viewModel.onUiAction(AuthUiAction.UpdatePassVisibility)
             }
         )
+
+        RememberUserCheckbox(
+            checkedValue = uiState.isUserRemembered,
+            onCheckedChange = {
+                viewModel.onUiAction(AuthUiAction.UpdateRemUserCheckbox(it))
+            }
+        )
+
+
     }
 
 }

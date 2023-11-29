@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,8 +29,15 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            dataStoreManager.userPreferences.collectLatest {
-                _uiState.value = SettingsState(it.themeMode)
+            dataStoreManager.userPreferences.collectLatest { userPref ->
+
+                val isLogged = userPref.email != null
+
+                _uiState.value = SettingsState(
+                    themeMode = userPref.themeMode,
+                    isUserLogged = isLogged,
+                    email = userPref.email
+                )
             }
         }
     }
@@ -40,16 +48,38 @@ class SettingsViewModel @Inject constructor(
                 _uiEvent.send(SettingsUiEvent.NavigateUp)
             }
             is SettingsUiAction.UpdateThemeMode -> {
-                _uiState.value = SettingsState(action.themeMode)
+                _uiState.update {
+                    uiState.value.copy(
+                        themeMode = action.themeMode
+                    )
+                }
 
                 viewModelScope.launch(Dispatchers.IO) {
                     dataStoreManager.saveThemeMode(action.themeMode)
                 }
+            }
+
+            SettingsUiAction.LogOutUser -> {
+                _uiState.update {
+                    uiState.value.copy(
+                        isUserLogged = false,
+                        email = null
+                    )
+                }
+                viewModelScope.launch(Dispatchers.IO) {
+                    dataStoreManager.logOutUser()
+                }
+            }
+
+            SettingsUiAction.NavigateToLoginScreen -> viewModelScope.launch {
+                _uiEvent.send(SettingsUiEvent.NavigateToLogIn)
             }
         }
     }
 }
 
 data class SettingsState(
-    val themeMode: ThemeMode = ThemeMode.LIGHT
+    val themeMode: ThemeMode = ThemeMode.LIGHT,
+    val isUserLogged: Boolean = false,
+    val email: String? = null
 )

@@ -2,6 +2,7 @@ package com.example.unitodoapp.ui.screens.authorization
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.unitodoapp.data.datastore.DataStoreManager
 import com.example.unitodoapp.data.model.User
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.CONF
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.EML
@@ -23,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-
+    private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
 
     private val _uiEvent = Channel<AuthUiEvent>()
@@ -43,6 +44,13 @@ class AuthViewModel @Inject constructor(
             AuthUiAction.UpdateConfPassVisibility -> updateVisibility(CONF)
             is AuthUiAction.LogInUser -> logInUser(action.user)
             is AuthUiAction.UpdatePassForUser -> passUpdateForUser(action.user)
+            is AuthUiAction.UpdateRemUserCheckbox -> {
+                _uiState.update {
+                    uiState.value.copy(
+                        isUserRemembered = action.isCheck
+                    )
+                }
+            }
         }
     }
 
@@ -107,6 +115,8 @@ class AuthViewModel @Inject constructor(
             }
         } else {
             viewModelScope.launch {
+                if (uiState.value.isUserRemembered)
+                    dataStoreManager.saveUser(user)
                 _uiEvent.send(AuthUiEvent.NavigateToList)
             }
         }
@@ -231,7 +241,9 @@ data class AuthUiState(
 
     val confPassword: String = "",
     val isPassConfVisible: Boolean = false,
-    val confPassErrorMassage: String = ""
+    val confPassErrorMassage: String = "",
+
+    val isUserRemembered: Boolean = false
 )
 
 enum class Screen { WELCOME, REG, LOGIN, PASSREC }
