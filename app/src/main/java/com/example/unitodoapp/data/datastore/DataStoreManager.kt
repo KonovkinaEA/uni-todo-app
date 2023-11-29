@@ -51,4 +51,11 @@ class DataStoreManager @Inject constructor(@ApplicationContext appContext: Conte
         }
     }
 
+    suspend fun setUserStayLoggedTo(value: Boolean) {
+        preferencesDataStore.updateData { userPreferences ->
+            userPreferences.copy(
+                isStayLogged = value
+            )
+        }
+    }
 }

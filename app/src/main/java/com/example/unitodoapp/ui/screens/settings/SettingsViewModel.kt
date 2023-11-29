@@ -31,11 +31,9 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             dataStoreManager.userPreferences.collectLatest { userPref ->
 
-                val isLogged = userPref.email != null
-
                 _uiState.value = SettingsState(
                     themeMode = userPref.themeMode,
-                    isUserLogged = isLogged,
+                    isUserStayLogged = userPref.isStayLogged,
                     email = userPref.email
                 )
             }
@@ -47,6 +45,7 @@ class SettingsViewModel @Inject constructor(
             SettingsUiAction.NavigateUp -> viewModelScope.launch {
                 _uiEvent.send(SettingsUiEvent.NavigateUp)
             }
+
             is SettingsUiAction.UpdateThemeMode -> {
                 _uiState.update {
                     uiState.value.copy(
@@ -62,12 +61,14 @@ class SettingsViewModel @Inject constructor(
             SettingsUiAction.LogOutUser -> {
                 _uiState.update {
                     uiState.value.copy(
-                        isUserLogged = false,
+                        isUserStayLogged = false,
                         email = null
                     )
                 }
                 viewModelScope.launch(Dispatchers.IO) {
                     dataStoreManager.logOutUser()
+                    dataStoreManager.setUserStayLoggedTo(false)
+                    _uiEvent.send(SettingsUiEvent.NavigateToLogIn)
                 }
             }
 
@@ -80,6 +81,7 @@ class SettingsViewModel @Inject constructor(
 
 data class SettingsState(
     val themeMode: ThemeMode = ThemeMode.LIGHT,
-    val isUserLogged: Boolean = false,
+    val isUserStayLogged: Boolean = false,
+    val isLogged: Boolean = true,
     val email: String? = null
 )

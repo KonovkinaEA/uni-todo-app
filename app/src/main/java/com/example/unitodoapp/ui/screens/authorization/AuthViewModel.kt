@@ -115,8 +115,10 @@ class AuthViewModel @Inject constructor(
             }
         } else {
             viewModelScope.launch {
-                if (uiState.value.isUserRemembered)
-                    dataStoreManager.saveUser(user)
+                if (uiState.value.isUserRemembered) {
+                    dataStoreManager.setUserStayLoggedTo(true)
+                }
+                dataStoreManager.saveUser(user)
                 _uiEvent.send(AuthUiEvent.NavigateToList)
             }
         }

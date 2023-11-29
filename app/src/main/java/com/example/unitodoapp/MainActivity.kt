@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +25,7 @@ import com.example.unitodoapp.ui.navigation.AppNavHost
 import com.example.unitodoapp.ui.screens.settings.model.ThemeMode
 import com.example.unitodoapp.ui.theme.TodoAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,17 +38,29 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var workManager: CustomWorkManager
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         workManager.setWorkers()
 
+        var isUserLogged = false
+
+        lifecycleScope.launch {
+            dataStoreManager.userPreferences.collectLatest {
+                isUserLogged = it.isStayLogged
+
+            }
+
+        }
+
         setContent {
             val navController = rememberNavController()
-            val pref = dataStoreManager.userPreferences.collectAsState(initial = UserPreferences())
+            val pref by dataStoreManager.userPreferences.collectAsState(initial = UserPreferences())
+
 
             TodoAppTheme(
-                darkTheme = when (pref.value.themeMode) {
+                darkTheme = when (pref.themeMode) {
                     ThemeMode.LIGHT -> false
                     ThemeMode.DARK -> true
                     else -> isSystemInDarkTheme()
@@ -58,13 +72,26 @@ class MainActivity : ComponentActivity() {
                 ) {
                     AppNavHost(
                         modifier = Modifier,
-                        navController = navController
+                        navController = navController,
+                        isUserLogged = isUserLogged
                     )
                 }
             }
         }
 
         checkNotificationPermission()
+    }
+
+    override fun onDestroy() {
+        lifecycleScope.launch {
+            dataStoreManager.userPreferences.collectLatest { userPreferences ->
+                if (!userPreferences.isStayLogged)
+                    dataStoreManager.logOutUser()
+            }
+        }
+
+
+        super.onDestroy()
     }
 
     private fun checkNotificationPermission() {

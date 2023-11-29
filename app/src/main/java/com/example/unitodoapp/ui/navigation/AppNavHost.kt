@@ -17,12 +17,13 @@ import com.example.unitodoapp.ui.screens.settings.SettingsScreen
 @Composable
 fun AppNavHost(
     modifier: Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    isUserLogged: Boolean
 ) {
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = AUTH_ROOT
+        startDestination = if (isUserLogged) List.route else AUTH_ROOT
     ) {
 
         launchNavAuth(navController = navController)
