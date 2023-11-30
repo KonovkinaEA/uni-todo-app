@@ -66,9 +66,9 @@ class SettingsViewModel @Inject constructor(
                     )
                 }
                 viewModelScope.launch(Dispatchers.IO) {
-                    dataStoreManager.logOutUser()
                     dataStoreManager.setUserStayLoggedTo(false)
                     _uiEvent.send(SettingsUiEvent.NavigateToLogIn)
+                    dataStoreManager.logOutUser()
                 }
             }
 

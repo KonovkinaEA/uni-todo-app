@@ -24,5 +24,6 @@
     <string name="notif_title">Notifications</string>
     <string name="importance_for_notif">Importance: </string>
     <string name="notif_channel_description">Used for notify about ToDo`s deadline</string>
+    <string name="settings_title">Settings</string>
 
 </resources>

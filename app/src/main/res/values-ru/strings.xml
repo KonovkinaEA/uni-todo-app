@@ -23,5 +23,6 @@
     <string name="notif_title">Уведомления</string>
     <string name="importance_for_notif">Важность: </string>
     <string name="notif_channel_description">Используется для уведомлений о дедлайнах дел</string>
+    <string name="settings_title">Настройки</string>
 
 </resources>
