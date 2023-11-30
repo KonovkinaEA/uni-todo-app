@@ -15,7 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.example.unitodoapp.data.model.User
+import com.example.unitodoapp.data.api.model.User
 import com.example.unitodoapp.data.navigation.LogIn
 import com.example.unitodoapp.data.navigation.Reg
 import com.example.unitodoapp.ui.components.authorization.RegistrationTextField

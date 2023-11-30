@@ -2,8 +2,9 @@ package com.example.unitodoapp.ui.screens.authorization
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.unitodoapp.data.Repository
 import com.example.unitodoapp.data.datastore.DataStoreManager
-import com.example.unitodoapp.data.model.User
+import com.example.unitodoapp.data.api.model.User
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.CONF
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.EML
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.PASS
@@ -24,6 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
+    private val repository: Repository,
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
 
@@ -36,14 +38,26 @@ class AuthViewModel @Inject constructor(
 
     fun onUiAction(action: AuthUiAction) {
         when (action) {
-            is AuthUiAction.RegisterNewUser -> registerNewUser(action.user)
+            is AuthUiAction.RegisterNewUser ->
+                viewModelScope.launch {
+                    registerNewUser(action.user)
+                }
+
             is AuthUiAction.UpdateLogin -> updateTextField(action.email, EML)
             is AuthUiAction.UpdatePass -> updateTextField(action.pass, PASS)
             is AuthUiAction.UpdateConfirmPass -> updateTextField(action.confPass, CONF)
             AuthUiAction.UpdatePassVisibility -> updateVisibility(PASS)
             AuthUiAction.UpdateConfPassVisibility -> updateVisibility(CONF)
-            is AuthUiAction.LogInUser -> logInUser(action.user)
-            is AuthUiAction.UpdatePassForUser -> passUpdateForUser(action.user)
+            is AuthUiAction.LogInUser ->
+                viewModelScope.launch {
+                    logInUser(action.user)
+                }
+
+            is AuthUiAction.UpdatePassForUser ->
+                viewModelScope.launch {
+                    passUpdateForUser(action.user)
+                }
+
             is AuthUiAction.UpdateRemUserCheckbox -> {
                 _uiState.update {
                     uiState.value.copy(
@@ -54,10 +68,8 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private fun passUpdateForUser(user: User) {
-        val isUserExist = true
-        //todo network check that user exist
-
+    private suspend fun passUpdateForUser(user: User) {
+        val isUserExist = repository.checkUserExist(user)
         var isValidationPassed = true
 
         if (!isUserExist) { // login doesn't exist in system
@@ -85,31 +97,21 @@ class AuthViewModel @Inject constructor(
 
 
         if (isValidationPassed) {
-            //todo network pass recover
+            repository.recoveryPassword(user)
             viewModelScope.launch {
                 _uiEvent.send(AuthUiEvent.NavigateToLog)
             }
         }
     }
 
-    private fun logInUser(user: User) {
+    private suspend fun logInUser(user: User) {
+        val isSuccess = repository.logInUser(user = user)
 
-        val isUserExist = true
-        //todo network check that user exist
-        val isLoginSuccess = true
-        //todo network check that pass correct
-
-        if (!isUserExist) { // email doesn't exist in system
-            _uiState.update {
-                uiState.value.copy(
-                    isEmailValid = false,
-                    emailErrorMassage = "There is no user with such email"
-                )
-            }
-        } else if (!isLoginSuccess) {
+        if (!isSuccess) {
             _uiState.update {
                 uiState.value.copy(
                     isPassValid = false,
+                    isEmailValid = false,
                     passErrorMassage = "Incorrect email or password"
                 )
             }
@@ -162,7 +164,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private fun registerNewUser(user: User) {
+    private suspend fun registerNewUser(user: User) {
         var isValidationPassed = true
 
         if (!isEmailValid(user.email)) {
@@ -190,9 +192,9 @@ class AuthViewModel @Inject constructor(
 
         if (isValidationPassed) {
 
-            //todo network work
+            val isSuccess = repository.registerNewUser(user = user)
 
-            if (true) {// login doesn't occupied
+            if (isSuccess) { // login doesn't occupied
                 viewModelScope.launch {
                     _uiEvent.send(AuthUiEvent.NavigateToLog)
                 }

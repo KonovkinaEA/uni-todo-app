@@ -1,4 +1,4 @@
-package com.example.unitodoapp.data.model
+package com.example.unitodoapp.data.api.model
 
 data class User(
     val email: String,
