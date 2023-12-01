@@ -29,4 +29,6 @@ interface Repository {
     suspend fun checkUserExist(user: User): Boolean
 
     suspend fun recoveryPassword(user: User)
+
+    suspend fun clearDatabase()
 }

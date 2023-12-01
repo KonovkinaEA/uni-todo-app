@@ -5,13 +5,15 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.example.unitodoapp.utils.REPEAT_LOAD_INTERVAL
+import com.example.unitodoapp.data.api.model.User
+import com.example.unitodoapp.utils.REPEAT_TOKEN_INTERVAL
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,16 +24,19 @@ class CustomWorkManager @Inject constructor(
     private val workManager: WorkManager
 ) {
 
-    fun setWorkers() {
-        monitorNetworkConnection()
-        refreshPeriodicWork()
-        loadDataWork()
+    fun setWorkers(wasLogged: Boolean, user: User) {
+        monitorNetworkConnection(user)
+        updateDataAndToken(user)
+        if (!wasLogged) loadDataFromServer(user)
+        else loadDataWork(user)
     }
 
-    private fun loadDataWork() {
+    private fun loadDataWork(user: User) {
         if (!isNetworkAvailable()) {
             loadDataFromDB()
-        } else loadDataFromServer()
+        } else {
+            loadDataFromServer(user)
+        }
     }
 
     private fun isNetworkAvailable(): Boolean {
@@ -40,33 +45,45 @@ class CustomWorkManager @Inject constructor(
         return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
     }
 
-    private fun refreshPeriodicWork() {
+    private fun updateDataAndToken(user: User) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
+        val inputData = Data.Builder()
+            .putString("email", user.email)
+            .putString("password", user.password)
+            .build()
+
         val request = PeriodicWorkRequest.Builder(
             NetworkAvailableWorker::class.java,
-            REPEAT_LOAD_INTERVAL,
-            TimeUnit.HOURS
+            REPEAT_TOKEN_INTERVAL,
+            TimeUnit.MINUTES
         )
+            .setInputData(inputData)
             .setConstraints(constraints)
             .build()
 
         workManager
             .enqueueUniquePeriodicWork(
-                "refreshWorker",
+                "updateToken",
                 ExistingPeriodicWorkPolicy.KEEP,
                 request
             )
     }
 
-    private fun loadDataFromServer() {
+    private fun loadDataFromServer(user: User) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
+        val inputData = Data.Builder()
+            .putString("email", user.email)
+            .putString("password", user.password)
+            .build()
+
         val request = OneTimeWorkRequest.Builder(NetworkAvailableWorker::class.java)
+            .setInputData(inputData)
             .setConstraints(constraints)
             .build()
 
@@ -95,17 +112,17 @@ class CustomWorkManager @Inject constructor(
             )
     }
 
-    private fun monitorNetworkConnection() {
+    private fun monitorNetworkConnection(user: User) {
         val request = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
             .build()
 
-        connectivityManager.registerNetworkCallback(request, getNetworkCallback())
+        connectivityManager.registerNetworkCallback(request, getNetworkCallback(user))
     }
 
-    private fun getNetworkCallback() =
+    private fun getNetworkCallback(user: User) =
         object : ConnectivityManager.NetworkCallback() {
 
             private val availableNetworks: MutableSet<Network> = HashSet()
@@ -126,8 +143,9 @@ class CustomWorkManager @Inject constructor(
             }
 
             private fun sendNetworkState() {
-                if (availableNetworks.isNotEmpty()) loadDataFromServer()
-
+                if (availableNetworks.isNotEmpty()) {
+                    loadDataFromServer(user)
+                }
             }
         }
 }

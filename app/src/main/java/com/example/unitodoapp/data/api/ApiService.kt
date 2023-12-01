@@ -22,7 +22,7 @@ interface ApiService {
 
     @GET("todos/{id}")
     suspend fun getAllTodoData(
-        @Path("id") id: String
+        @Header("Authorization") accessToken: String, @Path("id") id: String
     ): Response<TodoListResponse>
 
     @POST("checkuser")

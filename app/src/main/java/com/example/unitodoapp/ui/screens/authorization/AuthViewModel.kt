@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.unitodoapp.data.Repository
 import com.example.unitodoapp.data.datastore.DataStoreManager
 import com.example.unitodoapp.data.api.model.User
+import com.example.unitodoapp.data.workmanager.CustomWorkManager
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.CONF
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.EML
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.PASS
@@ -25,6 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
+    private val workManager: CustomWorkManager,
     private val repository: Repository,
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
@@ -121,6 +123,7 @@ class AuthViewModel @Inject constructor(
                     dataStoreManager.setUserStayLoggedTo(true)
                 }
                 dataStoreManager.saveUser(user)
+                workManager.setWorkers(wasLogged = false, user = user)
                 _uiEvent.send(AuthUiEvent.NavigateToList)
             }
         }

@@ -135,7 +135,10 @@ class TodoItemsRepository @Inject constructor(
     override suspend fun loadDataFromServer() =
         withContext(Dispatchers.IO) {
             try {
-                val response = apiService.getAllTodoData(currentId)
+                val response = apiService.getAllTodoData(
+                    "Bearer $currentToken",
+                    currentId
+                )
 
                 if (response.isSuccessful) {
                     val dataFromServer = response.body() as TodoListResponse
@@ -281,6 +284,13 @@ class TodoItemsRepository @Inject constructor(
                 dataFromServer.user.id,
                 TodoListContainer(currentList!!)
             )
+        }
+    }
+
+    override suspend fun clearDatabase() {
+        withContext(Dispatchers.IO) {
+            todoItemDao.deleteAllTodoItems()
+            revisionDao.setRevisionToOne()
         }
     }
 }
