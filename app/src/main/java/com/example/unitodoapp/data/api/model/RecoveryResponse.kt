@@ -1,7 +1,7 @@
 package com.example.unitodoapp.data.api.model
 
-data class TodoListResponse(
-    val id: Int,
+data class RecoveryResponse (
     val list: List<TodoItemServer>?,
-    val revision: Long
+    val revision: Long,
+    val userId: Long
 )

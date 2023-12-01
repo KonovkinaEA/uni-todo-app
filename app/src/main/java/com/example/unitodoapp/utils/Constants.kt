@@ -25,4 +25,4 @@ const val INTENT_ID_IMPORTANCE_KEY = "importance"
 
 const val RETRY_COUNT = 1
 
-const val REPEAT_LOAD_INTERVAL = 8L
+const val REPEAT_TOKEN_INTERVAL = 55L

@@ -11,4 +11,7 @@ interface RevisionDao {
 
     @Query("UPDATE revision SET revision = :newRevision WHERE revision.id = 1")
     fun updateRevision(newRevision: Long)
+
+    @Query("UPDATE revision SET revision = 1 WHERE revision.id = 1")
+    fun setRevisionToOne()
 }
