@@ -17,6 +17,15 @@ fun String.convertToImportance(): Importance =
         "basic" -> Importance.BASIC
         else -> Importance.LOW
     }
+
+fun getImportanceId(importance: Importance): Int {
+    return when (importance) {
+        Importance.IMPORTANT -> IMPORTANCE_IMPORTANT_ID
+        Importance.BASIC -> IMPORTANCE_BASIC_ID
+        else -> IMPORTANCE_LOW_ID
+    }
+}
+
 fun createTodo(todoItem: TodoItem): Todo {
     return Todo(
         id = todoItem.id,
@@ -27,14 +36,6 @@ fun createTodo(todoItem: TodoItem): Todo {
         createdAt = todoItem.creationDate,
         changedAt = todoItem.modificationDate
     )
-}
-
-fun getImportanceId(importance: Importance): Int {
-    return when (importance) {
-        Importance.IMPORTANT -> IMPORTANCE_IMPORTANT_ID
-        Importance.BASIC -> IMPORTANCE_BASIC_ID
-        else -> IMPORTANCE_LOW_ID
-    }
 }
 
 fun toTodoItemServer(todoItem: TodoItem): TodoItemServer {
