@@ -6,32 +6,34 @@ import com.example.unitodoapp.data.db.RevisionDao
 import com.example.unitodoapp.data.db.TodoItemDao
 import com.example.unitodoapp.data.model.Importance
 import com.example.unitodoapp.data.model.TodoItem
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.unmockkAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
-import org.mockito.kotlin.mock
 import org.robolectric.util.ReflectionHelpers
 
 class TodoItemsRepositoryTest {
 
-    private val todoItemDao = mock<TodoItemDao>()
-    private val apiService = mock<ApiService>()
-    private val revisionDao = mock<RevisionDao>()
-    private val _todoItems = mock<MutableStateFlow<List<TodoItem>>>()
-    private val todoItems = mock<StateFlow<List<TodoItem>>>()
-    private val errorListLiveData = mock<MutableLiveData<Boolean>>()
-    private val errorItemLiveData = mock<MutableLiveData<Boolean>>()
+    private val todoItemDao = mockk<TodoItemDao>(relaxed = true)
+    private val apiService = mockk<ApiService>(relaxed = true)
+    private val revisionDao = mockk<RevisionDao>(relaxed = true)
+    private val _todoItems = mockk<MutableStateFlow<List<TodoItem>>> {
+        every { value } returns list
+    }
+    private val todoItems = mockk<StateFlow<List<TodoItem>>>()
+    private val errorListLiveData = mockk<MutableLiveData<Boolean>>()
+    private val errorItemLiveData = mockk<MutableLiveData<Boolean>>()
 
     private lateinit var todoItemsRepository: TodoItemsRepository
 
     @Before
     fun setUp() {
-        Mockito.`when`(_todoItems.value).thenReturn(list)
-
         todoItemsRepository = TodoItemsRepository(todoItemDao, apiService, revisionDao)
 
         ReflectionHelpers.setField(
@@ -40,6 +42,11 @@ class TodoItemsRepositoryTest {
         ReflectionHelpers.setField(todoItemsRepository, STATE_FLOW_TODO_ITEMS, todoItems)
         ReflectionHelpers.setField(todoItemsRepository, ERROR_LIST_LIVE_DATA, errorListLiveData)
         ReflectionHelpers.setField(todoItemsRepository, ERROR_ITEM_LIVE_DATA, errorItemLiveData)
+    }
+
+    @After
+    fun tearDown() {
+        unmockkAll()
     }
 
     @Test
