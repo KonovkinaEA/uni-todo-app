@@ -47,8 +47,8 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             dataStoreManager.userPreferences.collectLatest {
                 isUserLogged = it.isStayLogged
-                if (isUserLogged) {
-                    val user = User(it.email!!, it.password!!)
+                if (it.email != null && it.password != null) {
+                    val user = User(it.email, it.password)
                     workManager.setWorkers(wasLogged = true, user = user)
                 }
             }
