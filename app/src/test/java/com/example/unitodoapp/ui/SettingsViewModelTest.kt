@@ -1,6 +1,7 @@
 package com.example.unitodoapp.ui
 
 import com.example.unitodoapp.MainCoroutineRule
+import com.example.unitodoapp.data.Repository
 import com.example.unitodoapp.data.datastore.DataStoreManager
 import com.example.unitodoapp.data.datastore.UserPreferences
 import com.example.unitodoapp.ui.screens.settings.SettingsViewModel
@@ -32,7 +33,7 @@ class SettingsViewModelTest {
     var mainCoroutineRule = MainCoroutineRule()
 
     private val _uiEvent = mockk<Channel<SettingsUiEvent>>(relaxed = true) {
-        coEvery { send(any()) } just runs
+        coEvery { send(SettingsUiEvent.NavigateUp) } just runs
     }
     private val userPref = mockk<UserPreferences>(relaxed = true) {
         every { themeMode } returns ThemeMode.DARK
@@ -41,13 +42,17 @@ class SettingsViewModelTest {
     }
     private val dataStoreManager = mockk<DataStoreManager>(relaxed = true) {
         every { userPreferences } returns MutableStateFlow(userPref)
+        coEvery { saveThemeMode(any()) } just runs
+        coEvery { setUserStayLoggedTo(any()) } just runs
+        coEvery { logOutUser() } just runs
     }
+    private val repository = mockk<Repository>(relaxed = true)
 
     private lateinit var settingsViewModel: SettingsViewModel
 
     @Before
     fun setUp() = runTest {
-        settingsViewModel = SettingsViewModel(dataStoreManager)
+        settingsViewModel = SettingsViewModel(repository, dataStoreManager)
         ReflectionHelpers.setField(settingsViewModel, "_uiEvent", _uiEvent)
     }
 
@@ -66,7 +71,40 @@ class SettingsViewModelTest {
         settingsViewModel.onUiAction(SettingsUiAction.NavigateUp)
         advanceUntilIdle()
 
-        coVerify { _uiEvent.send(any()) }
+        coVerify { _uiEvent.send(SettingsUiEvent.NavigateUp) }
+    }
+
+    @Test
+    fun testOnUiActionUpdateThemeMode() = runTest {
+        settingsViewModel.onUiAction(SettingsUiAction.UpdateThemeMode(ThemeMode.SYSTEM))
+        advanceUntilIdle()
+
+        Assertions.assertThat(settingsViewModel.uiState.value.themeMode).isEqualTo(ThemeMode.SYSTEM)
+        coVerify { dataStoreManager.saveThemeMode(ThemeMode.SYSTEM) }
+    }
+
+    @Test
+    fun testOnUiActionLogOutUser() = runTest {
+        settingsViewModel.onUiAction(SettingsUiAction.LogOutUser)
+        advanceUntilIdle()
+        val value = settingsViewModel.uiState.value
+
+        Assertions.assertThat(value.isUserStayLogged).isEqualTo(false)
+        Assertions.assertThat(value.email).isEqualTo(null)
+        coVerify {
+            repository.clearDatabase()
+            dataStoreManager.setUserStayLoggedTo(false)
+            _uiEvent.send(SettingsUiEvent.NavigateToLogIn)
+            dataStoreManager.logOutUser()
+        }
+    }
+
+    @Test
+    fun testOnUiActionNavigateToLoginScreen() = runTest {
+        settingsViewModel.onUiAction(SettingsUiAction.NavigateToLoginScreen)
+        advanceUntilIdle()
+
+        coVerify { _uiEvent.send(SettingsUiEvent.NavigateToLogIn) }
     }
 
     companion object {
