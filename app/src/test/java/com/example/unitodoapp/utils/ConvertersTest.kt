@@ -4,7 +4,7 @@ import com.example.unitodoapp.data.api.model.TodoItemServer
 import com.example.unitodoapp.data.db.entities.Todo
 import com.example.unitodoapp.data.model.Importance
 import com.example.unitodoapp.data.model.TodoItem
-import org.junit.Assert
+import org.fest.assertions.api.Assertions
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -20,7 +20,7 @@ class ConvertersTest {
         @Test
         fun testConvertToDateFormat() {
             val date = parameterValue.convertToDateFormat()
-            Assert.assertEquals(date, expectedDate)
+            Assertions.assertThat(date).isEqualTo(expectedDate)
         }
 
         companion object {
@@ -47,7 +47,7 @@ class ConvertersTest {
         @Test
         fun testConvertToImportance() {
             val importance = parameterValue.convertToImportance()
-            Assert.assertEquals(importance, expectedImportance)
+            Assertions.assertThat(importance).isEqualTo(expectedImportance)
         }
 
         companion object {
@@ -75,7 +75,7 @@ class ConvertersTest {
         @Test
         fun testGetImportanceId() {
             val id = getImportanceId(parameterValue)
-            Assert.assertEquals(id, expectedId)
+            Assertions.assertThat(id).isEqualTo(expectedId)
         }
 
         companion object {
@@ -101,7 +101,7 @@ class ConvertersTest {
         @Test
         fun testCreateTodo() {
             val todo = createTodo(parameterValue)
-            Assert.assertEquals(todo, expectedTodo)
+            Assertions.assertThat(todo).isEqualTo(expectedTodo)
         }
 
         companion object {
@@ -141,7 +141,7 @@ class ConvertersTest {
         @Test
         fun testCreateTodo() {
             val todoItemServer = toTodoItemServer(parameterValue)
-            Assert.assertEquals(todoItemServer, expectedTodoItemServer)
+            Assertions.assertThat(todoItemServer).isEqualTo(expectedTodoItemServer)
         }
 
         companion object {

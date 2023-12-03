@@ -1,4 +1,4 @@
-package com.example.unitodoapp.ui
+package com.example.unitodoapp
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
