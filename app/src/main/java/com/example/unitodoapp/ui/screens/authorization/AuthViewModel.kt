@@ -3,17 +3,15 @@ package com.example.unitodoapp.ui.screens.authorization
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.unitodoapp.data.Repository
-import com.example.unitodoapp.data.datastore.DataStoreManager
 import com.example.unitodoapp.data.api.model.User
+import com.example.unitodoapp.data.datastore.DataStoreManager
 import com.example.unitodoapp.data.workmanager.CustomWorkManager
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.CONF
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.EML
 import com.example.unitodoapp.ui.screens.authorization.AuthViewModel.TextFieldType.PASS
 import com.example.unitodoapp.ui.screens.authorization.actions.AuthUiAction
 import com.example.unitodoapp.ui.screens.authorization.actions.AuthUiEvent
-import com.example.unitodoapp.utils.MAX_LOGIN_LEN
 import com.example.unitodoapp.utils.MAX_PASS_LEN
-import com.example.unitodoapp.utils.MIN_LOGIN_LEN
 import com.example.unitodoapp.utils.MIN_PASS_LEN
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -77,8 +75,7 @@ class AuthViewModel @Inject constructor(
         if (!isUserExist) { // login doesn't exist in system
             _uiState.update {
                 uiState.value.copy(
-                    isEmailValid = false,
-                    emailErrorMassage = "There is no user with such email"
+                    isEmailValid = false
                 )
             }
             isValidationPassed = false
@@ -88,8 +85,7 @@ class AuthViewModel @Inject constructor(
             isValidationPassed = false
             _uiState.update {
                 uiState.value.copy(
-                    isPassValid = false,
-                    passErrorMassage = "Invalid password. Use $MIN_LOGIN_LEN-$MAX_LOGIN_LEN characters with only letters (a-z), digits, and '_', '-'"
+                    isPassValid = false
                 )
             }
         }
@@ -114,7 +110,6 @@ class AuthViewModel @Inject constructor(
                 uiState.value.copy(
                     isPassValid = false,
                     isEmailValid = false,
-                    passErrorMassage = "Incorrect email or password"
                 )
             }
         } else {
@@ -153,13 +148,12 @@ class AuthViewModel @Inject constructor(
                 EML -> uiState.value.copy(
                     email = value,
                     isEmailValid = true,
-                    emailErrorMassage = "",
+                    isEmailOccupy = false,
                 )
 
                 PASS -> uiState.value.copy(
                     password = value,
                     isPassValid = true,
-                    passErrorMassage = "",
                 )
 
                 CONF -> uiState.value.copy(confPassword = value)
@@ -175,7 +169,16 @@ class AuthViewModel @Inject constructor(
             _uiState.update {
                 uiState.value.copy(
                     isEmailValid = false,
-                    emailErrorMassage = "Invalid email"
+                )
+            }
+        }
+
+        if (repository.checkUserExist(user)) {
+            isValidationPassed = false
+            _uiState.update {
+                uiState.value.copy(
+                    isEmailValid = false,
+                    isEmailOccupy = true,
                 )
             }
         }
@@ -185,7 +188,6 @@ class AuthViewModel @Inject constructor(
             _uiState.update {
                 uiState.value.copy(
                     isPassValid = false,
-                    passErrorMassage = "Invalid password. Use $MIN_LOGIN_LEN-$MAX_LOGIN_LEN characters with only letters (a-z), digits, and '_', '-'"
                 )
             }
         }
@@ -194,20 +196,9 @@ class AuthViewModel @Inject constructor(
             isValidationPassed = false
 
         if (isValidationPassed) {
-
-            val isSuccess = repository.registerNewUser(user = user)
-
-            if (isSuccess) { // login doesn't occupied
-                viewModelScope.launch {
-                    _uiEvent.send(AuthUiEvent.NavigateToLog)
-                }
-            } else {
-                _uiState.update {
-                    uiState.value.copy(
-                        isEmailValid = false,
-                        emailErrorMassage = "This email is already occupied."
-                    )
-                }
+            viewModelScope.launch {
+                repository.registerNewUser(user = user)
+                _uiEvent.send(AuthUiEvent.NavigateToLog)
             }
         }
     }
@@ -239,16 +230,14 @@ data class AuthUiState(
 
     val email: String = "",
     val isEmailValid: Boolean = true,
-    val emailErrorMassage: String = "",
+    val isEmailOccupy: Boolean = false,
 
     val password: String = "",
     val isPassValid: Boolean = true,
     val isPassVisible: Boolean = false,
-    val passErrorMassage: String = "",
 
     val confPassword: String = "",
     val isPassConfVisible: Boolean = false,
-    val confPassErrorMassage: String = "",
 
     val isUserRemembered: Boolean = false
 )

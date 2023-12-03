@@ -14,11 +14,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import com.example.unitodoapp.R
 import com.example.unitodoapp.ui.components.authorization.AuthButton
 import com.example.unitodoapp.ui.theme.Blue
 import com.example.unitodoapp.ui.theme.ExtendedTheme
@@ -64,7 +66,7 @@ fun AuthContainer(
             Spacer(modifier = Modifier.height(16.dp))
 
             AuthButton(
-                text = "Login",
+                text = stringResource(R.string.welcome_login_button_text),
                 containerColor = White,
                 onClick = { onSecondButtonClick() }
             )
