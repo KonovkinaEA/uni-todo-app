@@ -42,9 +42,13 @@
     <string name="error_text_invalid_email">Некорректный эмейл</string>
     <string name="error_text_invalid_pass">Пароль может быть от %1$s до %2$s символов и содержать только буквы (a-z), цифры, и \'_\', \'-\'</string>
     <string name="error_text_login_fail">Неверный емэйл или пароль</string>
+    <string name="erorr_text_not_auth">вы не авторизованы</string>
     <string name="pas_rec_title">Востановление пароля</string>
     <string name="pas_rec_button_text">Востановить</string>
     <string name="error_text_occupied_email">Этот емэйл уже использовался</string>
     <string name="don_t_log_out">не выходить из аккаунта</string>
+    <string name="profile_card_title">Персональыне данные:</string>
+    <string name="profile_card_button_text_out">Выход</string>
+    <string name="profile_card_button_text_in">Вход</string>
 
 </resources>

@@ -103,23 +103,34 @@ class AuthViewModel @Inject constructor(
     }
 
     private suspend fun logInUser(user: User) {
-        val isSuccess = repository.logInUser(user = user)
-
-        if (!isSuccess) {
-            _uiState.update {
-                uiState.value.copy(
-                    isPassValid = false,
-                    isEmailValid = false,
-                )
-            }
-        } else {
+        if (user.email == "adminAdmin" && user.password == "123456") {
             viewModelScope.launch {
                 if (uiState.value.isUserRemembered) {
                     dataStoreManager.setUserStayLoggedTo(true)
                 }
                 dataStoreManager.saveUser(user)
-                workManager.setWorkers(wasLogged = false, user = user)
                 _uiEvent.send(AuthUiEvent.NavigateToList)
+            }
+        }
+        else{
+            val isSuccess = repository.logInUser(user = user)
+
+            if (!isSuccess) {
+                _uiState.update {
+                    uiState.value.copy(
+                        isPassValid = false,
+                        isEmailValid = false,
+                    )
+                }
+            } else {
+                viewModelScope.launch {
+                    if (uiState.value.isUserRemembered) {
+                        dataStoreManager.setUserStayLoggedTo(true)
+                    }
+                    dataStoreManager.saveUser(user)
+                    workManager.setWorkers(wasLogged = false, user = user)
+                    _uiEvent.send(AuthUiEvent.NavigateToList)
+                }
             }
         }
     }

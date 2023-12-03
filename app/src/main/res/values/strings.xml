@@ -47,5 +47,9 @@
     <string name="reg_field_label_new_pass">Enter new password</string>
     <string name="error_text_occupied_email">This email is already occupied</string>
     <string name="don_t_log_out">don\'t log out</string>
+    <string name="profile_card_title">Personal data:</string>
+    <string name="erorr_text_not_auth">you haven\'t authorized</string>
+    <string name="profile_card_button_text_out">Log out</string>
+    <string name="profile_card_button_text_in">Log in</string>
 
 </resources>
