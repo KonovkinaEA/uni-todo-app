@@ -2,6 +2,7 @@ package com.example.unitodoapp.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.unitodoapp.data.Repository
 import com.example.unitodoapp.data.datastore.DataStoreManager
 import com.example.unitodoapp.ui.screens.settings.actions.SettingsUiAction
 import com.example.unitodoapp.ui.screens.settings.actions.SettingsUiEvent
@@ -19,6 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    private val repository: Repository,
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
     private val _uiEvent = Channel<SettingsUiEvent>()
@@ -64,6 +66,11 @@ class SettingsViewModel @Inject constructor(
                         email = null
                     )
                 }
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    repository.clearDatabase()
+                }
+
                 viewModelScope.launch(Dispatchers.IO) {
                     dataStoreManager.setUserStayLoggedTo(false)
                     _uiEvent.send(SettingsUiEvent.NavigateToLogIn)

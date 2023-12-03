@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.example.unitodoapp.data.api.model.User
 import com.example.unitodoapp.data.datastore.DataStoreManager
 import com.example.unitodoapp.data.datastore.UserPreferences
 import com.example.unitodoapp.data.workmanager.CustomWorkManager
@@ -38,20 +39,19 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var workManager: CustomWorkManager
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        workManager.setWorkers()
 
         var isUserLogged = false
 
         lifecycleScope.launch {
             dataStoreManager.userPreferences.collectLatest {
                 isUserLogged = it.isStayLogged
-
+                if (it.email != null && it.password != null) {
+                    val user = User(it.email, it.password)
+                    workManager.setWorkers(wasLogged = true, user = user)
+                }
             }
-
         }
 
         setContent {
@@ -89,8 +89,6 @@ class MainActivity : ComponentActivity() {
                     dataStoreManager.logOutUser()
             }
         }
-
-
         super.onDestroy()
     }
 

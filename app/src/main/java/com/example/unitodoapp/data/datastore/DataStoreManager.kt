@@ -2,7 +2,7 @@ package com.example.unitodoapp.data.datastore
 
 import android.content.Context
 import androidx.datastore.dataStore
-import com.example.unitodoapp.data.model.User
+import com.example.unitodoapp.data.api.model.User
 import com.example.unitodoapp.ui.screens.settings.model.ThemeMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

@@ -1,6 +1,6 @@
 package com.example.unitodoapp.ui.screens.authorization.actions
 
-import com.example.unitodoapp.data.model.User
+import com.example.unitodoapp.data.api.model.User
 
 sealed class AuthUiAction {
     data class RegisterNewUser(val user: User) : AuthUiAction()
