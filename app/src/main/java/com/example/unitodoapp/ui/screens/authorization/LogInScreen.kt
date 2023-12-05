@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -15,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.example.unitodoapp.R
 import com.example.unitodoapp.data.api.model.User
 import com.example.unitodoapp.data.navigation.Auth
 import com.example.unitodoapp.data.navigation.List
@@ -52,7 +54,7 @@ fun LogInScreen(
 
     AuthContainer(
         screenType = Screen.LOGIN,
-        buttonText = "Log In",
+        buttonText = stringResource(R.string.login_button_text),
         onButtonClick = {
             viewModel.onUiAction(
                 AuthUiAction.LogInUser(
@@ -63,7 +65,7 @@ fun LogInScreen(
                 )
             )
         },
-        bottomSuggestText = "Doesn't have an account? Create one",
+        bottomSuggestText = stringResource(R.string.login_bottom_text),
         onBottomTextClick = {
             navController.navigate(
                 Reg.route,
@@ -71,7 +73,7 @@ fun LogInScreen(
         }
     ) {
         Text(
-            text = "Enter in account",
+            text = stringResource(R.string.login_title),
             fontSize = 24.sp,
             color = ExtendedTheme.colors.labelPrimary,
             modifier = Modifier.padding(bottom = 12.dp)
@@ -79,9 +81,8 @@ fun LogInScreen(
 
         RegistrationTextField(
             value = uiState.email,
-            labelText = "Enter email",
+            labelText = stringResource(R.string.reg_field_label_email),
             isValid = uiState.isEmailValid,
-            invalidMassage = uiState.emailErrorMassage,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateLogin(text))
             }
@@ -89,9 +90,9 @@ fun LogInScreen(
 
         RegistrationTextField(
             value = uiState.password,
-            labelText = "Enter password",
+            labelText = stringResource(R.string.reg_field_label_pass),
             isValid = uiState.isPassValid,
-            invalidMassage = uiState.passErrorMassage,
+            invalidMassage = stringResource(R.string.error_text_login_fail),
             isPassword = true,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdatePass(text))

@@ -14,10 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.unitodoapp.R
 import com.example.unitodoapp.ui.screens.settings.SettingsState
 import com.example.unitodoapp.ui.screens.settings.actions.SettingsUiAction
 import com.example.unitodoapp.ui.theme.ExtendedTheme
@@ -46,7 +48,7 @@ fun ProfileCard(
         },
         overlineContent = {
             Text(
-                text = "Personal data:",
+                text = stringResource(R.string.profile_card_title),
                 fontSize = 18.sp,
                 color = ExtendedTheme.colors.labelPrimary
             )
@@ -54,7 +56,7 @@ fun ProfileCard(
         headlineContent = {
             Column {
                 Text(
-                    text = if (uiState.isLogged) "email: ${uiState.email}" else "you haven't authorized",
+                    text = if (uiState.isLogged) "email: ${uiState.email}" else stringResource(R.string.erorr_text_not_auth),
                     color = if (uiState.isLogged) ExtendedTheme.colors.labelPrimary else Red,
                     modifier = Modifier.padding(12.dp)
                 )
@@ -71,8 +73,8 @@ fun ProfileCard(
                 )
             ) {
                 Text(
-                    text = if (uiState.isLogged) "Log out"
-                    else "Log in",
+                    text = if (uiState.isLogged) stringResource(R.string.profile_card_button_text_out)
+                    else stringResource(R.string.profile_card_button_text_in),
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 Icon(
