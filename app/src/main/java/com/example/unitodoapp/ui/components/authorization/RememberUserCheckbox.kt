@@ -11,9 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import com.example.unitodoapp.R
 import com.example.unitodoapp.ui.theme.Blue
 import com.example.unitodoapp.ui.theme.ExtendedTheme
 import com.example.unitodoapp.ui.theme.ThemeModePreview
@@ -42,7 +44,7 @@ fun RememberUserCheckbox(
         )
 
         Text(
-            text = "don't log out",
+            text = stringResource(R.string.don_t_log_out),
             color = if (checkedValue) Blue else ExtendedTheme.colors.labelSecondary,
         )
 

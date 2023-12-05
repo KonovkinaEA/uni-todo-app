@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -15,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.example.unitodoapp.R
 import com.example.unitodoapp.data.api.model.User
 import com.example.unitodoapp.data.navigation.LogIn
 import com.example.unitodoapp.data.navigation.PassRec
@@ -50,7 +52,7 @@ fun PassRecoveryScreen(
 
     AuthContainer(
         screenType = Screen.PASSREC,
-        buttonText = "Recover password",
+        buttonText = stringResource(R.string.pas_rec_button_text),
         onButtonClick = {
             viewModel.onUiAction(
                 AuthUiAction.UpdatePassForUser(
@@ -61,7 +63,7 @@ fun PassRecoveryScreen(
                 )
             )
         },
-        bottomSuggestText = "Doesn't have an account? Create one",
+        bottomSuggestText = stringResource(R.string.login_bottom_text),
         onBottomTextClick = {
             navController.navigate(
                 Reg.route,
@@ -69,7 +71,7 @@ fun PassRecoveryScreen(
         }
     ) {
         Text(
-            text = "Password recovery",
+            text = stringResource(R.string.pas_rec_title),
             fontSize = 24.sp,
             color = ExtendedTheme.colors.labelPrimary,
             modifier = Modifier.padding(bottom = 12.dp)
@@ -77,9 +79,9 @@ fun PassRecoveryScreen(
 
         RegistrationTextField(
             value = uiState.email,
-            labelText = "Enter email",
+            labelText = stringResource(R.string.reg_field_label_email),
             isValid = uiState.isEmailValid,
-            invalidMassage = uiState.emailErrorMassage,
+            invalidMassage = stringResource(R.string.error_text_email_not_exit),
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateLogin(text))
             }
@@ -87,9 +89,9 @@ fun PassRecoveryScreen(
 
         RegistrationTextField(
             value = uiState.password,
-            labelText = "Enter new password",
+            labelText = stringResource(R.string.reg_field_label_new_pass),
             isValid = uiState.isPassValid,
-            invalidMassage = uiState.passErrorMassage,
+            invalidMassage = stringResource(R.string.error_text_invalid_pass),
             isPassword = true,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdatePass(text))
@@ -102,9 +104,9 @@ fun PassRecoveryScreen(
 
         RegistrationTextField(
             value = uiState.confPassword,
-            labelText = "Confirm new password",
+            labelText = stringResource(R.string.reg_field_label_conf_pass),
             isValid = (uiState.password == uiState.confPassword),
-            invalidMassage = "passwords doesn't match",
+            invalidMassage = stringResource(R.string.error_text_conf_pass),
             isPassword = true,
             onValueChange = { text ->
                 viewModel.onUiAction(AuthUiAction.UpdateConfirmPass(text))
