@@ -32,7 +32,6 @@ class SettingsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             dataStoreManager.userPreferences.collectLatest { userPref ->
-
                 _uiState.value = SettingsState(
                     themeMode = userPref.themeMode,
                     isUserStayLogged = userPref.isStayLogged,

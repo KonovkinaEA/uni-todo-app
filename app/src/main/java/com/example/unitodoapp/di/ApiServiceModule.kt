@@ -27,7 +27,7 @@ interface ApiServiceModule {
             gsonConverterFactory: GsonConverterFactory
         ): ApiService {
             return Retrofit.Builder()
-                .baseUrl("http://26.36.121.166:3000/")
+                .baseUrl("http://192.168.1.129:3000/")
                 .client(okHttpClient)
                 .addConverterFactory(gsonConverterFactory)
                 .build()
