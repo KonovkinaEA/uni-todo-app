@@ -14,12 +14,14 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.unmockkAll
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.fest.assertions.api.Assertions
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,6 +56,11 @@ class SettingsViewModelTest {
     fun setUp() = runTest {
         settingsViewModel = SettingsViewModel(repository, dataStoreManager)
         ReflectionHelpers.setField(settingsViewModel, "_uiEvent", _uiEvent)
+    }
+
+    @After
+    fun tearDown() {
+        unmockkAll()
     }
 
     @Test
