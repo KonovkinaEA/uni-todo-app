@@ -4,6 +4,11 @@ import androidx.lifecycle.MutableLiveData
 import com.example.unitodoapp.MainCoroutineRule
 import com.example.unitodoapp.data.api.ApiService
 import com.example.unitodoapp.data.api.model.AuthResponse
+import com.example.unitodoapp.data.api.model.EmailServer
+import com.example.unitodoapp.data.api.model.RecoveryResponse
+import com.example.unitodoapp.data.api.model.TodoItemServer
+import com.example.unitodoapp.data.api.model.TodoListContainer
+import com.example.unitodoapp.data.api.model.TodoListResponse
 import com.example.unitodoapp.data.api.model.User
 import com.example.unitodoapp.data.api.model.UserResponse
 import com.example.unitodoapp.data.db.RevisionDao
@@ -13,6 +18,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import io.mockk.spyk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,9 +48,49 @@ class TodoItemsRepositoryTest {
     private val todoItem = mockk<TodoItem>(relaxed = true) {
         every { isDone } returns false
     }
-    private val list = mutableListOf<TodoItem>()
+    private val user = mockk<User>(relaxed = true) {
+        every { email } returns "test@mail.ru"
+        every { password } returns "Qwerty7"
+    }
+    private val userResponse = mockk<UserResponse>(relaxed = true) {
+        every { email } returns "test@mail.ru"
+        every { id } returns "1"
+    }
+    private val authResponse = mockk<AuthResponse>(relaxed = true) {
+        every { accessToken } returns "someToken"
+        every { user } returns userResponse
+    }
+    private val successfulAuthResponse = Response.success(authResponse)
+    private val errorResponseBody =
+        """{"error": "Not Found"}""".toResponseBody("application/json".toMediaType())
+    private val unsuccessfulAuthResponse = Response.error<AuthResponse>(404, errorResponseBody)
+    private val todoItemsServer = mutableListOf<TodoItemServer>()
+    private val todoItemServer = mockk<TodoItemServer>(relaxed = true) {
+        every { id } returns "1"
+    }
+    private val emailServer = mockk<EmailServer>(relaxed = true) {
+        every { email } returns user.email
+    }
+    private val recoveryResponse = mockk<RecoveryResponse>(relaxed = true) {
+        every { list } returns todoItemsServer
+        every { revision } returns 1
+        every { userId } returns 1
+    }
+    private val successfulRecoveryResponse = Response.success(recoveryResponse)
+    private val unsuccessfulRecoveryResponse =
+        Response.error<RecoveryResponse>(404, errorResponseBody)
+    private val todoListResponse = mockk<TodoListResponse>(relaxed = true) {
+        every { id } returns 1
+        every { list } returns todoItemsServer
+        every { revision } returns 1
+    }
+    private val successfulTodoListResponse = Response.success(todoListResponse)
+    private val todoListContainer = mockk<TodoListContainer>(relaxed = true) {
+        every { list } returns todoItemsServer
+    }
+    private val todoItemList = mutableListOf<TodoItem>()
     private val _todoItems = mockk<MutableStateFlow<List<TodoItem>>> {
-        every { value } returns list
+        every { value } returns todoItemList
     }
     private val errorListLiveData = mockk<MutableLiveData<Boolean>>()
     private val errorItemLiveData = mockk<MutableLiveData<Boolean>>()
@@ -54,12 +100,21 @@ class TodoItemsRepositoryTest {
 
     @Before
     fun setUp() {
-        repeat(15) { list.add(todoItem) }
+        repeat(15) { todoItemList.add(todoItem) }
+        repeat(15) { todoItemsServer.add(todoItemServer) }
         todoItemsRepository = TodoItemsRepository(todoItemDao, apiService, revisionDao)
         spyTodoItemsRepository = spyk(todoItemsRepository, recordPrivateCalls = true)
         ReflectionHelpers.setField(todoItemsRepository, MUTABLE_STATE_FLOW_TODO_ITEMS, _todoItems)
         ReflectionHelpers.setField(todoItemsRepository, ERROR_LIST_LIVE_DATA, errorListLiveData)
         ReflectionHelpers.setField(todoItemsRepository, ERROR_ITEM_LIVE_DATA, errorItemLiveData)
+        ReflectionHelpers.setField(todoItemsRepository, "currentList", todoItemsServer)
+        ReflectionHelpers.setField(todoItemsRepository, "currentId", userResponse.id)
+        ReflectionHelpers.setField(
+            todoItemsRepository,
+            "currentRevision",
+            todoListResponse.revision
+        )
+        mockkConstructor(TodoListContainer::class)
     }
 
     @After
@@ -72,8 +127,8 @@ class TodoItemsRepositoryTest {
         val newItem = mockk<TodoItem>(relaxed = true) {
             every { id } returns "1"
         }
-        list.add(newItem)
-        list.shuffle()
+        todoItemList.add(newItem)
+        todoItemList.shuffle()
         val item = todoItemsRepository.getItem(id = "1")
         advanceUntilIdle()
 
@@ -82,16 +137,57 @@ class TodoItemsRepositoryTest {
 
     @Test
     fun testGetItemNull() = runTest {
-        list.removeIf { it.id == "1" }
+        todoItemList.removeIf { it.id == "1" }
         val item = todoItemsRepository.getItem("1")
         advanceUntilIdle()
 
         Assertions.assertThat(item).isEqualTo(null)
     }
 
+//    @Test
+//    fun testAddItem() = runTest {
+
+//    }
+//
+//    @Test
+//    fun testUpdateItem() = runTest {
+
+//    }
+//
+//    @Test
+//    fun testRemoveItem() = runTest {
+
+//    }
+
+    //    @Test
+//    fun testLoadDataFromDB() = runTest {
+//        val todoItemInfoTuple = mockk<TodoItemInfoTuple>(relaxed = true)
+//        val list = mutableListOf<TodoItemInfoTuple>()
+//        repeat(10) { list.add(todoItemInfoTuple) }
+//        coEvery { todoItemDao.getAllTodoData() } returns list
+//        coEvery { errorItemLiveData.postValue(true) } returns Unit
+//        todoItemsRepository.loadDataFromDB()
+//        advanceUntilIdle()
+//        coVerify {
+//            todoItemDao.getAllTodoData()
+//            errorItemLiveData.postValue(true)
+//        }
+//    }
+//
+//    @Test
+//    fun testLoadDataFromServer() = runTest {
+
+//    }
+//
+//    @Test
+//    fun testReloadData() = runTest {
+
+//    }
+
     @Test
     fun testErrorListLiveData() {
         val liveData = todoItemsRepository.errorListLiveData()
+
         Assertions.assertThat(liveData).isEqualTo(errorListLiveData)
     }
 
@@ -106,7 +202,7 @@ class TodoItemsRepositoryTest {
         val newItem = mockk<TodoItem>(relaxed = true) {
             every { isDone } returns true
         }
-        repeat(3) { list.add(newItem) }
+        repeat(3) { todoItemList.add(newItem) }
         val count = todoItemsRepository.numOfCompleted()
 
         Assertions.assertThat(count).isEqualTo(3)
@@ -130,7 +226,7 @@ class TodoItemsRepositoryTest {
     fun testUndoneTodoItems() {
         val count = todoItemsRepository.undoneTodoItems()
 
-        Assertions.assertThat(count).isEqualTo(list)
+        Assertions.assertThat(count).isEqualTo(todoItemList)
     }
 
     @Test
@@ -143,56 +239,154 @@ class TodoItemsRepositoryTest {
 
     @Test
     fun testRegisterNewUserSuccess() = runTest {
-        val newUser = mockk<User>(relaxed = true) {
-            every { email } returns "test@mail.ru"
-            every { password } returns "Qwerty7"
-        }
-        val newUserResponse = mockk<UserResponse>(relaxed = true) {
-            every { email } returns "test@mail.ru"
-            every { id } returns "1"
-        }
-        val authResponse = mockk<AuthResponse>(relaxed = true) {
-            every { accessToken } returns "someToken"
-            every { user } returns newUserResponse
-        }
-        val successfulResponse = Response.success(authResponse)
-        coEvery { apiService.registerNewUser(newUser) } returns successfulResponse
-        val result = spyTodoItemsRepository.registerNewUser(newUser)
+        coEvery { apiService.registerNewUser(user) } returns successfulAuthResponse
+        val result = spyTodoItemsRepository.registerNewUser(user)
         advanceUntilIdle()
         coVerify {
-            apiService.registerNewUser(newUser)
-            spyTodoItemsRepository["patchListAfterRegistration"](successfulResponse)
+            apiService.registerNewUser(user)
+            spyTodoItemsRepository["patchListAfterRegistration"](successfulAuthResponse)
         }
+
         Assertions.assertThat(result).isEqualTo(true)
     }
 
     @Test
     fun testRegisterNewUserFailure() = runTest {
-        val newUser = mockk<User>(relaxed = true)
-        val errorResponseBody =
-            """{"error": "Not Found"}""".toResponseBody("application/json".toMediaType())
-        val unsuccessfulResponse = Response.error<AuthResponse>(404, errorResponseBody)
-        coEvery { apiService.registerNewUser(newUser) } returns unsuccessfulResponse
-        val result = spyTodoItemsRepository.registerNewUser(newUser)
+        coEvery { apiService.registerNewUser(user) } returns unsuccessfulAuthResponse
+        val result = spyTodoItemsRepository.registerNewUser(user)
         advanceUntilIdle()
         coVerify {
-            apiService.registerNewUser(newUser)
-            spyTodoItemsRepository["patchListAfterRegistration"](unsuccessfulResponse)
+            apiService.registerNewUser(user)
+            spyTodoItemsRepository["patchListAfterRegistration"](unsuccessfulAuthResponse)
         }
+
         Assertions.assertThat(result).isEqualTo(false)
     }
 
 
     @Test
     fun testRegisterNewUserError() = runTest {
-        val newUser = mockk<User>(relaxed = true)
         coEvery { apiService.registerNewUser(any()) } throws Exception("Some error")
-        val result = spyTodoItemsRepository.registerNewUser(newUser)
+        val result = spyTodoItemsRepository.registerNewUser(user)
         advanceUntilIdle()
         coVerify {
-            apiService.registerNewUser(newUser)
+            apiService.registerNewUser(user)
         }
+
         Assertions.assertThat(result).isEqualTo(false)
+    }
+
+    @Test
+    fun testLogInUserSuccess() = runTest {
+        coEvery { apiService.logInUser(user) } returns successfulAuthResponse
+        val result = spyTodoItemsRepository.logInUser(user)
+        advanceUntilIdle()
+        coVerify {
+            apiService.logInUser(user)
+            spyTodoItemsRepository["updateLoginData"](successfulAuthResponse)
+        }
+
+        Assertions.assertThat(result).isEqualTo(true)
+    }
+
+    @Test
+    fun testLogInUserFailure() = runTest {
+        coEvery { apiService.logInUser(user) } returns unsuccessfulAuthResponse
+        val result = spyTodoItemsRepository.logInUser(user)
+        advanceUntilIdle()
+        coVerify {
+            apiService.logInUser(user)
+            spyTodoItemsRepository["updateLoginData"](unsuccessfulAuthResponse)
+        }
+
+        Assertions.assertThat(result).isEqualTo(false)
+    }
+
+    @Test
+    fun testLogInUserError() = runTest {
+        coEvery { apiService.logInUser(user) } throws Exception("Some error")
+        val result = spyTodoItemsRepository.logInUser(user)
+        advanceUntilIdle()
+        coVerify {
+            apiService.logInUser(user)
+        }
+
+        Assertions.assertThat(result).isEqualTo(false)
+    }
+
+    @Test
+    fun testCheckUserExistSuccess() = runTest {
+        coEvery { apiService.checkUserExist(emailServer) } returns successfulRecoveryResponse
+        val result = spyTodoItemsRepository.checkUserExist(user)
+        advanceUntilIdle()
+        coVerify {
+            apiService.checkUserExist(emailServer)
+            spyTodoItemsRepository["updateRecoveryData"](successfulRecoveryResponse)
+        }
+
+        Assertions.assertThat(result).isEqualTo(true)
+    }
+
+    @Test
+    fun testCheckUserExistFailure() = runTest {
+        coEvery { apiService.checkUserExist(emailServer) } returns unsuccessfulRecoveryResponse
+        val result = spyTodoItemsRepository.checkUserExist(user)
+        advanceUntilIdle()
+        coVerify {
+            apiService.checkUserExist(emailServer)
+            spyTodoItemsRepository["updateRecoveryData"](unsuccessfulRecoveryResponse)
+        }
+
+        Assertions.assertThat(result).isEqualTo(false)
+    }
+
+    @Test
+    fun testCheckUserExistError() = runTest {
+        coEvery { apiService.checkUserExist(emailServer) } throws Exception("Some error")
+        val result = spyTodoItemsRepository.checkUserExist(user)
+        advanceUntilIdle()
+        coVerify {
+            apiService.checkUserExist(emailServer)
+        }
+
+        Assertions.assertThat(result).isEqualTo(false)
+    }
+
+    @Test
+    fun testRecoveryPassword() = runTest {
+        coEvery { apiService.resetUser(userResponse.id, user) } returns Unit
+        coEvery { apiService.logInUser(user) } returns successfulAuthResponse
+        coEvery {
+            apiService.patchList(
+                recoveryResponse.revision.toString(),
+                "Bearer ${authResponse.accessToken}",
+                userResponse.id,
+                todoListContainer
+            )
+        } returns successfulTodoListResponse
+        todoItemsRepository.recoveryPassword(user)
+        advanceUntilIdle()
+        coVerify {
+            apiService.resetUser(any(), user)
+            apiService.logInUser(user)
+            apiService.patchList(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        }
+    }
+
+    @Test
+    fun testClearDatabase() = runTest {
+        todoItemsRepository.clearDatabase()
+        advanceUntilIdle()
+        coVerify {
+            todoItemDao.deleteAllTodoItems()
+            revisionDao.setRevisionToOne()
+        }
+
     }
 
     companion object {
