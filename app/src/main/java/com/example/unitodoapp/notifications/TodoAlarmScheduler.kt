@@ -36,7 +36,7 @@ class TodoAlarmScheduler @Inject constructor(
                 }
             }
         } else {
-            setAlarm(time, key, title, importance)
+            //setAlarm(time, key, title, importance)
         }
 
     }
@@ -60,17 +60,6 @@ class TodoAlarmScheduler @Inject constructor(
             AlarmManager.RTC_WAKEUP,
             time,
             alarmIntent
-        )
-    }
-
-    fun cancel(key: Int) {
-        alarmManager.cancel(
-            PendingIntent.getBroadcast(
-                context,
-                key,
-                Intent(context, AlarmReceiver::class.java),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
         )
     }
 }
