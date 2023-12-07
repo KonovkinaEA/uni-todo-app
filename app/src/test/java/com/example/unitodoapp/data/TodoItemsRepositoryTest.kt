@@ -5,6 +5,7 @@ import com.example.unitodoapp.MainCoroutineRule
 import com.example.unitodoapp.data.api.ApiService
 import com.example.unitodoapp.data.api.model.AuthResponse
 import com.example.unitodoapp.data.api.model.EmailServer
+import com.example.unitodoapp.data.api.model.ItemResponse
 import com.example.unitodoapp.data.api.model.RecoveryResponse
 import com.example.unitodoapp.data.api.model.TodoItemServer
 import com.example.unitodoapp.data.api.model.TodoListContainer
@@ -21,10 +22,12 @@ import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.spyk
 import io.mockk.unmockkAll
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.fest.assertions.api.Assertions
@@ -82,13 +85,20 @@ class TodoItemsRepositoryTest {
     private val todoListResponse = mockk<TodoListResponse>(relaxed = true) {
         every { id } returns 1
         every { list } returns todoItemsServer
-        every { revision } returns 1
+        every { revision } returns 5
     }
     private val successfulTodoListResponse = Response.success(todoListResponse)
+    private val unSuccessfulTodoListResponse =
+        Response.error<TodoListResponse>(404, errorResponseBody)
+    private val itemResponse = mockk<ItemResponse>(relaxed = true) {
+        every { element } returns todoItemServer
+        every { revision } returns 1
+    }
+    private val successfulItemResponse = Response.success(itemResponse)
     private val todoListContainer = mockk<TodoListContainer>(relaxed = true) {
         every { list } returns todoItemsServer
     }
-    private val todoItemList = mutableListOf<TodoItem>()
+    private var todoItemList = mutableListOf<TodoItem>()
     private val _todoItems = mockk<MutableStateFlow<List<TodoItem>>> {
         every { value } returns todoItemList
     }
@@ -144,22 +154,70 @@ class TodoItemsRepositoryTest {
         Assertions.assertThat(item).isEqualTo(null)
     }
 
-//    @Test
-//    fun testAddItem() = runTest {
+    @Test
+    fun testAddItem() = runTest {
+        coEvery { _todoItems.value } returns todoItemList
+        coEvery { revisionDao.getCurrentRevision() } returns 1
+        coEvery { todoItemDao.insertNewTodoItemData(any()) } returns Unit
+        coEvery {
+            apiService.addTodoItem(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns successfulItemResponse
+        coEvery { spyTodoItemsRepository["updateRevisionNetworkAvailable"](successfulItemResponse) } returns Unit
+        spyTodoItemsRepository.addItem(todoItem)
+        advanceUntilIdle()
+        coVerify {
+            todoItemDao.insertNewTodoItemData(any())
+            apiService.addTodoItem(any(), any(), any(), any())
+            spyTodoItemsRepository["updateRevisionNetworkAvailable"](successfulItemResponse)
+        }
 
-//    }
-//
-//    @Test
-//    fun testUpdateItem() = runTest {
+    }
 
-//    }
+    @Test
+    fun testUpdateItem() = runTest {
+        val newTodoItemStart = mockk<TodoItem>(relaxed = true) {
+            every { id } returns "1"
+            every { isDone } returns false
+        }
+        val initialTodoList = mutableListOf(newTodoItemStart)
+        val newTodoItem = mockk<TodoItem>(relaxed = true) {
+            every { id } returns "1"
+            every { isDone } returns true
+        }
+        coEvery { _todoItems.value } returns initialTodoList
+        coEvery { revisionDao.getCurrentRevision() } returns 1
+        coEvery { todoItemDao.updateTodoData(any()) } returns Unit
+        coEvery {
+            apiService.updateTodoItem(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns successfulItemResponse
+        coEvery { spyTodoItemsRepository["updateRevisionNetworkAvailable"](successfulItemResponse) } returns Unit
+        spyTodoItemsRepository.updateItem(newTodoItem)
+
+        advanceUntilIdle()
+        coVerify {
+            todoItemDao.updateTodoData(any())
+            apiService.updateTodoItem(any(), any(), any(), any(), any())
+            spyTodoItemsRepository["updateRevisionNetworkAvailable"](successfulItemResponse)
+        }
+    }
 //
 //    @Test
 //    fun testRemoveItem() = runTest {
 
 //    }
 
-    //    @Test
+//        @Test
 //    fun testLoadDataFromDB() = runTest {
 //        val todoItemInfoTuple = mockk<TodoItemInfoTuple>(relaxed = true)
 //        val list = mutableListOf<TodoItemInfoTuple>()
@@ -170,19 +228,85 @@ class TodoItemsRepositoryTest {
 //        advanceUntilIdle()
 //        coVerify {
 //            todoItemDao.getAllTodoData()
-//            errorItemLiveData.postValue(true)
 //        }
 //    }
-//
-//    @Test
-//    fun testLoadDataFromServer() = runTest {
 
-//    }
-//
-//    @Test
-//    fun testReloadData() = runTest {
+    @Test
+    fun testLoadDataFromServerUpdateDB() = runTest {
+        coEvery {
+            apiService.getAllTodoData(
+                "Bearer ${authResponse.accessToken}",
+                userResponse.id
+            )
+        } returns successfulTodoListResponse
+        revisionDao.setRevisionToOne()
+        coEvery { spyTodoItemsRepository["updateDataDB"](successfulTodoListResponse.body()) } returns Unit
+        coEvery { errorItemLiveData.postValue(false) } returns Unit
+        withContext(Dispatchers.IO) {
+            spyTodoItemsRepository.loadDataFromServer()
+        }
+        advanceUntilIdle()
+        coVerify {
+            apiService.getAllTodoData(any(), any())
+            spyTodoItemsRepository["updateDataDB"](successfulTodoListResponse.body())
+        }
+    }
 
-//    }
+    @Test
+    fun testLoadDataFromServerUpdateDataOnServer() = runTest {
+        val newTodoListResponse = mockk<TodoListResponse>(relaxed = true) {
+            every { id } returns 1
+            every { list } returns todoItemsServer
+            every { revision } returns 0
+        }
+        val newSuccessfulTodoListResponse = Response.success(newTodoListResponse)
+        coEvery {
+            apiService.getAllTodoData(
+                "Bearer ${authResponse.accessToken}",
+                userResponse.id
+            )
+        } returns newSuccessfulTodoListResponse
+        revisionDao.setRevisionToOne()
+        coEvery { spyTodoItemsRepository["updateDataOnServer"]() } returns Unit
+        coEvery { errorItemLiveData.postValue(false) } returns Unit
+        withContext(Dispatchers.IO) {
+            spyTodoItemsRepository.loadDataFromServer()
+        }
+        advanceUntilIdle()
+        coVerify {
+            apiService.getAllTodoData(any(), any())
+            spyTodoItemsRepository["updateDataOnServer"]()
+        }
+    }
+
+    @Test
+    fun testLoadDataFromServerError() = runTest {
+        coEvery {
+            apiService.getAllTodoData(
+                "Bearer ${authResponse.accessToken}",
+                userResponse.id
+            )
+        } returns unSuccessfulTodoListResponse
+        coEvery {
+            spyTodoItemsRepository["handleErrorWhenLoading"]()
+        } returns Unit
+        withContext(Dispatchers.IO) {
+            spyTodoItemsRepository.loadDataFromServer()
+        }
+        advanceUntilIdle()
+        coVerify {
+            apiService.getAllTodoData(any(), any())
+            spyTodoItemsRepository["handleErrorWhenLoading"]()
+        }
+    }
+
+    @Test
+    fun testReloadData() = runTest {
+        coEvery { spyTodoItemsRepository.loadDataFromServer() } returns Unit
+        spyTodoItemsRepository.reloadData()
+        advanceUntilIdle()
+        coVerify { spyTodoItemsRepository.loadDataFromServer() }
+    }
 
     @Test
     fun testErrorListLiveData() {
