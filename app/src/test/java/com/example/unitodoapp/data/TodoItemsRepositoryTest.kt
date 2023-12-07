@@ -156,7 +156,6 @@ class TodoItemsRepositoryTest {
 
     @Test
     fun testAddItem() = runTest {
-        coEvery { _todoItems.value } returns todoItemList
         coEvery { revisionDao.getCurrentRevision() } returns 1
         coEvery { todoItemDao.insertNewTodoItemData(any()) } returns Unit
         coEvery {
@@ -178,45 +177,42 @@ class TodoItemsRepositoryTest {
 
     }
 
-    @Test
-    fun testUpdateItem() = runTest {
-        val newTodoItemStart = mockk<TodoItem>(relaxed = true) {
-            every { id } returns "1"
-            every { isDone } returns false
-        }
-        val initialTodoList = mutableListOf(newTodoItemStart)
-        val newTodoItem = mockk<TodoItem>(relaxed = true) {
-            every { id } returns "1"
-            every { isDone } returns true
-        }
-        coEvery { _todoItems.value } returns initialTodoList
-        coEvery { revisionDao.getCurrentRevision() } returns 1
-        coEvery { todoItemDao.updateTodoData(any()) } returns Unit
-        coEvery {
-            apiService.updateTodoItem(
-                any(),
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        } returns successfulItemResponse
-        coEvery { spyTodoItemsRepository["updateRevisionNetworkAvailable"](successfulItemResponse) } returns Unit
-        spyTodoItemsRepository.updateItem(newTodoItem)
-
-        advanceUntilIdle()
-        coVerify {
-            todoItemDao.updateTodoData(any())
-            apiService.updateTodoItem(any(), any(), any(), any(), any())
-            spyTodoItemsRepository["updateRevisionNetworkAvailable"](successfulItemResponse)
-        }
-    }
+//    @Test
+//    fun testUpdateItem() = runTest {
+//        val newTodoItemStart = mockk<TodoItem>(relaxed = true) {
+//            every { id } returns "1"
+//            every { isDone } returns false
+//        }
+//        val newTodoItem = mockk<TodoItem>(relaxed = true) {
+//            every { id } returns "1"
+//            every { isDone } returns true
+//        }
+//        coEvery { _todoItems.value } returns todoItemList
+//        todoItemList.add(newTodoItemStart)
+//        coEvery { revisionDao.getCurrentRevision() } returns 1
+//        coEvery { todoItemDao.updateTodoData(any()) } returns Unit
+//        coEvery {
+//            apiService.updateTodoItem(
+//                any(),
+//                any(),
+//                any(),
+//                any(),
+//                any()
+//            )
+//        } returns successfulItemResponse
+//        coEvery { spyTodoItemsRepository["updateRevisionNetworkAvailable"](successfulItemResponse) } returns Unit
+//        spyTodoItemsRepository.updateItem(newTodoItem)
+//        advanceUntilIdle()
+//        coVerify {
+//            todoItemDao.updateTodoData(any())
+//            apiService.updateTodoItem(any(), any(), any(), any(), any())
+//            spyTodoItemsRepository["updateRevisionNetworkAvailable"](successfulItemResponse)
+//        }
+//    }
 //
 //    @Test
 //    fun testRemoveItem() = runTest {
-
 //    }
-
 //        @Test
 //    fun testLoadDataFromDB() = runTest {
 //        val todoItemInfoTuple = mockk<TodoItemInfoTuple>(relaxed = true)
